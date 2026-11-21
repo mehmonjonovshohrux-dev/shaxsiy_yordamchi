@@ -6,9 +6,14 @@ export const CONFIG = Object.freeze({
   SUPABASE_ANON_KEY:
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3d2JidG5ia2xudHNsemhtdXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyMzYyMzUsImV4cCI6MjExMDgxMjIzNX0.tL8TWCGS8YOqftyo5r7aXdJe4ltpJfCiUBFP90JgIcE',
 
-  ALLOW_SIGNUP: false, // boshqa odamlarga sotsangiz true (Supabase'da ham sign up ni yoqing)
 
   // Rasmlar
+  VERSION: '2.1.0',
+  BUILD_DATE: '2026-11-21',
+  ADMIN_TG: 'Ulugbek_5678',
+  ADMIN_PHONE: '+998952255678',
+  UPDATE_CHECK_MS: 30 * 60 * 1000,
+  SECRET_REVEAL_MS: 30000,
   BUCKET: 'acc-images',
   MAX_IMAGES: 12,
   MAX_FILE_MB: 25, // bundan katta fayl qabul qilinmaydi
@@ -26,5 +31,4 @@ export const CONFIG = Object.freeze({
   LOW_MARGIN: 0.1,
   PRICE_DROP: 0.1,
 
-  RESEND_SECONDS: 60,
 });

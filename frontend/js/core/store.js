@@ -5,12 +5,12 @@ const state = {
   loaded: false,
   loadError: false,
   tab: 'home',
-  filter: 'active', // active | sold | all
   sort: 'new', // new | old | price | profit
   query: '',
   period: 'month', // month | prev | 3m | year | all
   online: typeof navigator === 'undefined' ? true : navigator.onLine,
   locked: false,
+  update: null, // { version } — yangi versiya bor bo'lsa
 };
 
 const subs = new Set();

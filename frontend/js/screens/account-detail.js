@@ -10,6 +10,8 @@ import { closeTop, dropOverlays } from '../core/router.js';
 import { calc } from '../logic/finance.js';
 import { thumbPath, hydrate, removeFiles } from '../services/images.service.js';
 import { deleteAccount, unsell, setPartnerPaid } from '../services/accounts.service.js';
+import { loadSecret } from '../services/secrets.service.js';
+import { CONFIG } from '../config.js';
 import { renderTab } from './shell.js';
 import { openAccountForm } from './account-form.js';
 import { openSellForm } from './sell.js';
@@ -36,8 +38,13 @@ function detailHtml(a) {
     ${a.kind === 'partner' ? `<div class="kv"><span>Sherik ulushi${sold ? (a.partner_paid ? " · to'langan ✅" : " · to'lanmagan") : ''}</span><b>${som(c.partner)}</b></div>` : ''}
     ${a.notes ? `<div class="kv col"><span>Izoh</span><p class="notes">${esc(a.notes)}</p></div>` : ''}
   </div>
+  <div class="card secret-card" id="secret-card">
+    <div class="card-title">${icon('lock', 18)} Kirish ma'lumotlari</div>
+    <p class="muted small">Login va parol faqat siz «Ko'rsatish»ni bosganingizda ochiladi.</p>
+    <button type="button" class="btn ghost block" data-act="secret-show" data-id="${esc(a.id)}">${icon('eye', 18)} Ko'rsatish</button>
+  </div>
   <div class="btn-grid">
-    ${sold ? `<button type="button" class="btn ghost" data-act="do-unsell" data-id="${esc(a.id)}">↩ Sotuvga qaytarish</button>` : `<button type="button" class="btn" data-act="do-sell" data-id="${esc(a.id)}">${icon('check', 18)} Sotildi</button>`}
+    ${sold ? `<button type="button" class="btn" data-act="do-sell" data-id="${esc(a.id)}">${icon('edit', 18)} Sotuvni tahrirlash</button><button type="button" class="btn ghost" data-act="do-unsell" data-id="${esc(a.id)}">↩ Sotuvga qaytarish</button>` : `<button type="button" class="btn" data-act="do-sell" data-id="${esc(a.id)}">${icon('check', 18)} Sotildi</button>`}
     ${a.kind === 'partner' && sold ? `<button type="button" class="btn ghost" data-act="do-paid" data-id="${esc(a.id)}">${a.partner_paid ? "To'lanmagan deb belgilash" : "Sherikka to'landi"}</button>` : ''}
     <button type="button" class="btn ghost" data-act="do-edit" data-id="${esc(a.id)}">${icon('edit', 18)} Tahrirlash</button>
     <button type="button" class="btn ghost" data-act="do-copy-ad" data-id="${esc(a.id)}">${icon('copy', 18)} E'lon matni</button>
@@ -48,14 +55,62 @@ function detailHtml(a) {
 export function openAccount(id) {
   const a = findAccount(id);
   if (!a) return;
-  const ctl = openSheet({ title: a.title, size: 'full', html: detailHtml(a) });
+  const ctl = openSheet({ title: a.title, size: 'full', html: detailHtml(a), onClose: () => { clearTimeout(secretTimer); secretCache = null; } });
   hydrate(ctl.body);
+}
+
+let secretTimer = null;
+let secretCache = null;
+const SECRET_FIELDS = [['login', 'Login / email'], ['password', 'Parol'], ['extra', "Qo'shimcha"]];
+
+function secretHtml(d, id) {
+  const rows = SECRET_FIELDS.filter(([k]) => d[k])
+    .map(([k, l]) => `<div class="kv"><span>${l}</span><b class="secret-val">${esc(d[k])}</b><button type="button" class="icon-btn" data-act="secret-copy" data-k="${k}" aria-label="${l} nusxalash">${icon('copy', 18)}</button></div>`)
+    .join('');
+  return `<div class="card-title">${icon('lock', 18)} Kirish ma'lumotlari</div>
+    ${rows || '<p class="muted small">Kiritilmagan. «Tahrirlash» orqali qo\'shishingiz mumkin.</p>'}
+    <p class="muted xs">${CONFIG.SECRET_REVEAL_MS / 1000} soniyadan keyin avtomatik yashiriladi.</p>
+    <button type="button" class="btn ghost block" data-act="secret-hide" data-id="${esc(id)}">${icon('eyeoff', 18)} Yashirish</button>`;
+}
+function hideSecret(id) {
+  clearTimeout(secretTimer);
+  secretCache = null;
+  const card = document.getElementById('secret-card');
+  if (!card) return;
+  card.innerHTML = `<div class="card-title">${icon('lock', 18)} Kirish ma'lumotlari</div>
+    <p class="muted small">Login va parol faqat siz «Ko'rsatish»ni bosganingizda ochiladi.</p>
+    <button type="button" class="btn ghost block" data-act="secret-show" data-id="${esc(id)}">${icon('eye', 18)} Ko'rsatish</button>`;
 }
 
 const adText = (a) =>
   [`🎮 ${a.game ? `${a.game} akkaunt` : 'Akkaunt'}: ${a.title}`, `💰 Narxi: ${som(a.est_price)}`, '📩 Sotib olish uchun yozing'].join('\n');
 
 registerActions({
+  'secret-show': async (el) => {
+    const id = el.dataset.id;
+    el.disabled = true;
+    try {
+      secretCache = await loadSecret(id);
+      document.getElementById('secret-card').innerHTML = secretHtml(secretCache, id);
+      clearTimeout(secretTimer);
+      secretTimer = setTimeout(() => hideSecret(id), CONFIG.SECRET_REVEAL_MS);
+    } catch (e) {
+      console.error(e);
+      el.disabled = false;
+      toast("Yuklab bo'lmadi. Internetni tekshiring.", { type: 'error' });
+    }
+  },
+  'secret-hide': (el) => hideSecret(el.dataset.id),
+  'secret-copy': async (el) => {
+    const v = secretCache?.[el.dataset.k];
+    if (!v) return;
+    try {
+      await navigator.clipboard.writeText(v);
+      toast('Nusxalandi');
+    } catch {
+      toast("Nusxalab bo'lmadi", { type: 'error' });
+    }
+  },
   'open-account': (el) => openAccount(el.dataset.id),
   'open-gallery-acc': (el) => {
     const a = findAccount(el.dataset.id);

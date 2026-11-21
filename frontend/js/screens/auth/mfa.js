@@ -2,7 +2,7 @@
 import { setBusy, showFormError } from '../../core/dom.js';
 import { registerForms, registerActions } from '../../core/actions.js';
 import { mfaFactor, mfaVerifyCode, signOut } from '../../services/auth.service.js';
-import { authLayout, registerStep, replaceStep, finish, flowData } from './flow.js';
+import { authLayout, registerStep, finish } from './flow.js';
 
 registerStep('mfa', {
   view: () =>
@@ -32,10 +32,6 @@ registerForms({
     if (error) {
       setBusy(form, false);
       return showFormError(form, "Kod noto'g'ri yoki muddati tugagan");
-    }
-    if (flowData.after === 'newpass') {
-      flowData.after = null;
-      return replaceStep('newpass');
     }
     finish();
   },

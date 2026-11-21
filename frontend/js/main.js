@@ -18,6 +18,15 @@ import './screens/reports.js';
 import './screens/settings.js';
 import './screens/security.js';
 import './screens/install.js';
+import './screens/menu.js';
+import './screens/notifications.js';
+import './screens/profile.js';
+import './screens/contact.js';
+import './screens/help.js';
+import './screens/security-hub.js';
+import { openProfile } from './screens/profile.js';
+import { getProfile } from './services/profile.service.js';
+import { startUpdateWatch } from './services/update.service.js';
 import { openAccountForm } from './screens/account-form.js';
 
 async function afterAuth() {
@@ -41,6 +50,14 @@ async function enterApp() {
     toast("Ma'lumotlarni yuklab bo'lmadi", { type: 'error' });
   }
   renderTab();
+  startUpdateWatch();
+  // Birinchi kirishda profilni to'ldirishni so'raymiz (bir marta)
+  try {
+    if (!getProfile().complete && !localStorage.getItem('accsavdo.profilePrompted')) {
+      localStorage.setItem('accsavdo.profilePrompted', '1');
+      setTimeout(() => openProfile({ intro: true }), 600);
+    }
+  } catch {}
   // Bosh ekran yorlig'i: /?new=1 -> yangi akkaunt formasi
   if (new URLSearchParams(location.search).get('new') === '1') {
     history.replaceState(history.state, '', location.pathname);

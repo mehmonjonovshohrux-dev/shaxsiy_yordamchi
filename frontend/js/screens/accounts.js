@@ -10,8 +10,9 @@ import { thumbPath } from '../services/images.service.js';
 import { hydrate } from '../services/images.service.js';
 import { registerTab, renderTab } from './shell.js';
 
-const FILTERS = [['active', 'Sotuvda'], ['sold', 'Sotilgan'], ['all', 'Hammasi']];
 const SORTS = [['new', 'Yangilari avval'], ['old', 'Eskilari avval'], ['price', 'Narx bo\'yicha'], ['profit', 'Foyda bo\'yicha']];
+const SOLD_SORTS = [['sold', 'Sotilgan sana'], ['price', 'Narx bo\'yicha'], ['profit', 'Foyda bo\'yicha']];
+const sortFor = (kind, sort) => (kind === 'sold' ? (SOLD_SORTS.some(([k]) => k === sort) ? sort : 'sold') : sort);
 
 export function cardHtml(a) {
   const c = calc(a);
@@ -46,11 +47,10 @@ function visible(kind) {
   const q = st.query.trim().toLowerCase();
   const list = st.accounts.filter(
     (a) =>
-      a.kind === kind &&
-      (st.filter === 'all' || a.status === st.filter) &&
+      (kind === 'sold' ? a.status === 'sold' : a.kind === kind && a.status === 'active') &&
       (!q || `${a.title} ${a.game} ${a.partner_name} ${a.buyer}`.toLowerCase().includes(q)),
   );
-  return sortAccounts(list, st.sort);
+  return sortAccounts(list, sortFor(kind, st.sort));
 }
 
 function listHtml(kind) {
@@ -62,25 +62,24 @@ function listHtml(kind) {
     const searching = st.query.trim();
     return emptyState({
       iconName: searching ? 'search' : 'tag',
-      title: searching ? 'Hech narsa topilmadi' : st.filter === 'sold' ? "Hali sotilgan akkaunt yo'q" : "Akkaunt yo'q",
-      text: searching ? "Boshqa so'z bilan qidirib ko'ring." : kind === 'partner' ? "Sherik bilan 50/50 ishlaydigan akkauntlar shu yerda turadi." : "Shaxsiy akkauntlaringiz shu yerda turadi.",
-      cta: searching || st.filter === 'sold' ? '' : "Akkaunt qo'shish",
+      title: searching ? 'Hech narsa topilmadi' : kind === 'sold' ? "Hali sotilgan akkaunt yo'q" : "Sotuvda akkaunt yo'q",
+      text: searching ? "Boshqa so'z bilan qidirib ko'ring." : kind === 'sold' ? "Sotilgan akkauntlar shu yerda saqlanadi. Boshqa bo'limlarda ko'rinmaydi." : kind === 'partner' ? "Sherik bilan 50/50 ishlaydigan akkauntlar shu yerda turadi." : "Shaxsiy akkauntlaringiz shu yerda turadi.",
+      cta: searching || kind === 'sold' ? '' : "Akkaunt qo'shish",
       act: 'new-account',
     });
   }
   const total = list.reduce((s, a) => s + calc(a).my, 0);
-  return `<p class="list-sum muted small">${list.length} ta · jami foyda: <b class="${total < 0 ? 'neg' : 'pos'}">${signedSom(total)}</b></p>${list.map(cardHtml).join('')}`;
+  return `<p class="list-sum muted small">${list.length} ta · ${kind === 'sold' ? 'jami foyda' : 'kutilayotgan foyda'}: <b class="${total < 0 ? 'neg' : 'pos'}">${signedSom(total)}</b></p>${list.map(cardHtml).join('')}`;
 }
 
 function makeTab(kind) {
   return {
-    title: kind === 'own' ? 'Shaxsiy akkauntlar' : '50/50 akkauntlar',
+    title: kind === 'own' ? 'Shaxsiy akkauntlar' : kind === 'partner' ? '50/50 akkauntlar' : 'Sotilganlar',
     view: (st) => `
-      <div class="seg" role="tablist">${FILTERS.map(([k, l]) => `<button type="button" role="tab" aria-selected="${st.filter === k}" class="${st.filter === k ? 'on' : ''}" data-act="set-filter" data-v="${k}">${l}</button>`).join('')}</div>
       <div class="searchbar">
         <span class="lead">${icon('search', 18)}</span>
         <input type="search" placeholder="Qidirish: nom, o'yin, sherik…" value="${esc(st.query)}" data-input="acc-search" aria-label="Qidirish" enterkeyhint="search">
-        <select data-change="acc-sort" aria-label="Saralash">${SORTS.map(([k, l]) => `<option value="${k}" ${st.sort === k ? 'selected' : ''}>${l}</option>`).join('')}</select>
+        <select data-change="acc-sort" aria-label="Saralash">${(kind === 'sold' ? SOLD_SORTS : SORTS).map(([k, l]) => `<option value="${k}" ${sortFor(kind, st.sort) === k ? 'selected' : ''}>${l}</option>`).join('')}</select>
       </div>
       <div id="acc-list">${listHtml(kind)}</div>`,
   };
@@ -89,13 +88,14 @@ function makeTab(kind) {
 function repaintList() {
   const kind = getState().tab;
   const host = $('#acc-list');
-  if (!host || (kind !== 'own' && kind !== 'partner')) return;
+  if (!host || !['own', 'partner', 'sold'].includes(kind)) return;
   host.innerHTML = listHtml(kind);
   hydrate(host);
 }
 
 registerTab('own', makeTab('own'));
 registerTab('partner', makeTab('partner'));
+registerTab('sold', makeTab('sold'));
 
 let searchTimer;
 registerInputs({
@@ -111,10 +111,6 @@ registerInputs({
 });
 
 registerActions({
-  'set-filter': (el) => {
-    setState({ filter: el.dataset.v });
-    renderTab();
-  },
   'retry-load': async () => {
     const { loadAccounts } = await import('../services/accounts.service.js');
     try {

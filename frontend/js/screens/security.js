@@ -11,7 +11,7 @@ import { pinPadHtml, mountPinPad } from '../ui/pinpad.js';
 import { passwordFieldsHtml, mountPasswordFields } from '../ui/password-fields.js';
 import * as lock from '../services/lock.service.js';
 import * as auth from '../services/auth.service.js';
-import { refreshSettings } from './settings.js';
+import { refreshSecurityHub as refreshSettings } from './security-hub.js';
 
 const uid = () => getState().user.id;
 

@@ -121,3 +121,52 @@ test('format', () => {
   assert.equal(short(1500000), '1.5m');
   assert.equal(short(-25000), '−25k');
 });
+
+import { formatInput, toE164, isValidPhone, pretty } from '../frontend/js/logic/phone.js';
+import { makeGreeting, GREETING_COUNT } from '../frontend/js/logic/greetings.js';
+import { buildNotes } from '../frontend/js/logic/notifications.js';
+import { readFileSync } from 'node:fs';
+
+test('telefon: har xil kiritish +998 xx xxx xx xx ga keladi', () => {
+  for (const v of ['95 225 56 78', '+998 95 225 56 78', '998952255678', '0952255678', '952255678']) {
+    assert.equal(formatInput(v), '+998 95 225 56 78');
+    assert.equal(toE164(v), '+998952255678');
+  }
+  assert.equal(isValidPhone('+998 95 225'), false);
+  assert.equal(toE164('+998 95'), '');
+  assert.equal(pretty('+998952255678'), '+998 95 225 56 78');
+});
+
+test('salomlashuv: 20+ variant, ism/familiya alohida, familiyasiz ham ishlaydi', () => {
+  assert.ok(GREETING_COUNT >= 20);
+  const seen = new Set();
+  globalThis.localStorage = { _: {}, getItem(k) { return this._[k] ?? null; }, setItem(k, v) { this._[k] = v; } };
+  for (let i = 0; i < 60; i++) {
+    const g = makeGreeting({ first: 'Ali', last: 'Valiyev', now: new Date(2026, 10, 20, 9) });
+    assert.ok(!/\{|\}/.test(g.title), g.title);
+    seen.add(g.title);
+  }
+  assert.ok(seen.size >= 8);
+  for (let i = 0; i < 40; i++) {
+    const g = makeGreeting({ first: 'Ali', last: '', now: new Date(2026, 10, 20, 23) });
+    assert.ok(!/\{|\}|undefined/.test(g.title), g.title);
+    assert.ok(!g.title.includes('Valiyev'));
+  }
+  const a = makeGreeting({ first: 'Ali', last: 'V', now: new Date() }).title;
+  const b = makeGreeting({ first: 'Ali', last: 'V', now: new Date() }).title;
+  assert.notEqual(a, b); // ketma-ket bir xil chiqmaydi
+});
+
+test('bildirishnomalar: yangilanish, kunlik hisobot, kunlik yangi id', () => {
+  const acc = [A({ title: 'Eski', buy_price: 1, est_price: 100, created_at: '2026-09-01T10:00:00Z' })];
+  const n1 = buildNotes({ accounts: acc, now: new Date(2026, 10, 20), update: { version: '9' }, profileIncomplete: true });
+  assert.ok(n1.some((n) => n.kind === 'update') && n1.some((n) => n.kind === 'daily') && n1.some((n) => n.kind === 'profile'));
+  const n2 = buildNotes({ accounts: acc, now: new Date(2026, 10, 21) });
+  assert.notEqual(n1.find((n) => n.kind === 'daily').id, n2.find((n) => n.kind === 'daily').id);
+});
+
+test('versiya: config.js va version.json bir xil', () => {
+  const cfg = readFileSync(new URL('../frontend/js/config.js', import.meta.url), 'utf8').match(/VERSION: '([^']+)'/)[1];
+  const j = JSON.parse(readFileSync(new URL('../frontend/version.json', import.meta.url), 'utf8')).version;
+  assert.equal(cfg, j);
+});

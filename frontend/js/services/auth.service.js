@@ -19,15 +19,9 @@ export function humanizeAuthError(err) {
 
 export const getSession = async () => (await sb.auth.getSession()).data.session;
 export const signIn = (email, password) => sb.auth.signInWithPassword({ email, password });
-export const signUp = (email, password) => sb.auth.signUp({ email, password });
 export const signOut = () => sb.auth.signOut();
 export const onAuthChange = (fn) => sb.auth.onAuthStateChange(fn);
 
-// Parolni unutdim: emailga KOD yuboriladi (email shabloni {{ .Token }} bo'lishi kerak: backend/README.md)
-export const sendResetCode = (email) => sb.auth.resetPasswordForEmail(email);
-export const verifyRecoveryCode = (email, token) => sb.auth.verifyOtp({ email, token, type: 'recovery' });
-export const verifySignupCode = (email, token) => sb.auth.verifyOtp({ email, token, type: 'signup' });
-export const resendSignupCode = (email) => sb.auth.resend({ type: 'signup', email });
 export const setNewPassword = (password) => sb.auth.updateUser({ password });
 
 // ---- 2 bosqichli tasdiqlash (TOTP) ----

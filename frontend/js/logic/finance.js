@@ -114,6 +114,7 @@ export function sortAccounts(list, sort) {
   const by = {
     new: (a, b) => (b.created_at || '').localeCompare(a.created_at || ''),
     old: (a, b) => (a.created_at || '').localeCompare(b.created_at || ''),
+    sold: (a, b) => (b.sold_at || '').localeCompare(a.sold_at || ''),
     price: (a, b) => calc(b).price - calc(a).price,
     profit: (a, b) => calc(b).my - calc(a).my,
   };

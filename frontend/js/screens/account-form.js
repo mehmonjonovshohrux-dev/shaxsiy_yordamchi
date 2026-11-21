@@ -11,6 +11,7 @@ import { closeTop, dropOverlays } from '../core/router.js';
 import { calc } from '../logic/finance.js';
 import { prepare, upload, removeFiles, thumbPath, hydrate } from '../services/images.service.js';
 import { createAccount, updateAccount } from '../services/accounts.service.js';
+import { loadSecret, saveSecret } from '../services/secrets.service.js';
 import { renderTab } from './shell.js';
 
 // Bitta ochiq forma uchun vaqtinchalik holat
@@ -69,7 +70,7 @@ function preview() {
 export function openAccountForm(id = null, kind = null) {
   const a = id ? findAccount(id) : null;
   const k = a?.kind || kind || (getState().tab === 'partner' ? 'partner' : 'own');
-  fs = { id: a?.id || null, existing: [...(a?.images || [])], added: [], removed: [], dirty: false, force: false, saving: false };
+  fs = { secretLoaded: !a, secretFailed: false, id: a?.id || null, existing: [...(a?.images || [])], added: [], removed: [], dirty: false, force: false, saving: false };
   const games = [...new Set(getState().accounts.map((x) => x.game).filter(Boolean))];
 
   const ctl = openSheet({
@@ -99,7 +100,16 @@ export function openAccountForm(id = null, kind = null) {
       </div>
       <p class="preview" id="form-preview" aria-live="polite"></p>
       <label class="field"><span>Izoh</span>
-        <textarea class="plain" name="notes" maxlength="2000" placeholder="Sizga kerakli ma'lumot. Login va parol YOZMANG!">${esc(a?.notes)}</textarea></label>
+        <textarea class="plain" name="notes" maxlength="2000" placeholder="Sizga kerakli ma'lumot (parol emas: parol pastdagi maxsus bo'limga)">${esc(a?.notes)}</textarea></label>
+
+      <fieldset class="secret-box">
+        <legend>${icon('lock', 16)} Akkaunt kirish ma'lumotlari</legend>
+        <p class="muted xs" id="secret-note">${a ? 'Yuklanmoqda…' : "Faqat siz ko'rasiz: ro'yxatlarda va hisobotda chiqmaydi."}</p>
+        <label class="field"><span>Login / email</span><input class="plain" name="s_login" maxlength="300" autocomplete="off" autocapitalize="none" spellcheck="false" ${a ? 'disabled' : ''}></label>
+        <label class="field"><span>Parol</span>
+          <div class="input-wrap"><input class="plain" name="s_password" type="password" maxlength="300" autocomplete="new-password" spellcheck="false" ${a ? 'disabled' : ''}><button type="button" class="eye" data-act="toggle-pw" aria-label="Ko'rsatish / yashirish">${icon('eye', 18)}</button></div></label>
+        <label class="field"><span>Qo'shimcha (bog'langan email, kod, savol-javob…)</span><textarea class="plain" name="s_extra" maxlength="2000" ${a ? 'disabled' : ''}></textarea></label>
+      </fieldset>
 
       <div class="field-head"><span>Rasmlar</span><span class="muted small" id="img-count"></span></div>
       <div class="thumbs" id="img-thumbs"></div>
@@ -131,6 +141,26 @@ export function openAccountForm(id = null, kind = null) {
   });
   paintThumbs();
   preview();
+  if (a) loadSecretInto(form, a.id);
+}
+
+async function loadSecretInto(form, id) {
+  const note = $('#secret-note');
+  try {
+    const d = await loadSecret(id);
+    if (!fs || fs.id !== id) return;
+    form.elements.s_login.value = d.login || '';
+    form.elements.s_password.value = d.password || '';
+    form.elements.s_extra.value = d.extra || '';
+    fs.secretLoaded = true;
+    if (note) note.textContent = "Faqat siz ko'rasiz: ro'yxatlarda va hisobotda chiqmaydi.";
+  } catch (e) {
+    console.error(e);
+    if (fs) fs.secretFailed = true; // yuklanmadi: mavjud ma'lumotni bosib yubormaslik uchun saqlanmaydi
+    if (note) note.textContent = "Kirish ma'lumotlarini yuklab bo'lmadi. Bu maydonlar saqlanmaydi.";
+    return;
+  }
+  ['s_login', 's_password', 's_extra'].forEach((n) => (form.elements[n].disabled = false));
 }
 
 registerInputs({
@@ -242,6 +272,14 @@ registerForms({
       const isNew = !fs.id;
       if (isNew) await createAccount({ id, user_id: user.id, ...row });
       else await updateAccount(id, row);
+      if (fs.secretLoaded && !fs.secretFailed) {
+        try {
+          await saveSecret(id, { login: String(fd.get('s_login') || '').trim(), password: String(fd.get('s_password') || ''), extra: String(fd.get('s_extra') || '').trim() });
+        } catch (e) {
+          console.error(e);
+          toast("Akkaunt saqlandi, lekin kirish ma'lumotlari saqlanmadi. Qayta urinib ko'ring.", { type: 'error' });
+        }
+      }
       if (fs.removed.length) removeFiles(fs.removed).catch(() => {});
       fs.force = true;
       fs.saving = false;

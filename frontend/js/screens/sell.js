@@ -13,20 +13,21 @@ import { renderTab } from './shell.js';
 export function openSellForm(id) {
   const a = findAccount(id);
   if (!a) return;
+  const editing = a.status === 'sold';
   openSheet({
-    title: `Sotildi: ${a.title}`,
+    title: editing ? `Sotuvni tahrirlash: ${a.title}` : `Sotildi: ${a.title}`,
     size: 'md',
     html: `
-    <p class="muted small">Taxminiy narx: <b>${som(a.est_price)}</b>. Haqiqiy narxni kiritsangiz, u taxminiy narxning o'rniga yoziladi.</p>
-    <form data-form="sell" data-id="${esc(a.id)}" data-kind="${esc(a.kind)}" data-buy="${a.buy_price}" novalidate>
+    <p class="muted small">${editing ? `Hozirgi sotilgan narx: <b>${som(a.sold_price)}</b>. O'zgartirsangiz, hisobotlar ham yangilanadi.` : `Taxminiy narx: <b>${som(a.est_price)}</b>. Haqiqiy narxni kiritsangiz, u taxminiy narxning o'rniga yoziladi.`}</p>
+    <form data-form="sell" data-id="${esc(a.id)}" data-kind="${esc(a.kind)}" data-buy="${a.buy_price}" data-edit="${editing ? 1 : 0}" novalidate>
       <label class="field"><span>Haqiqiy sotilgan narx <i class="req">*</i></span>
-        <input class="plain big" name="sold_price" inputmode="numeric" data-input="sell-price" required value="${a.est_price ? group(a.est_price, ' ') : ''}" placeholder="0" autocomplete="off"><em>so'm</em></label>
+        <input class="plain big" name="sold_price" inputmode="numeric" data-input="sell-price" required value="${(editing ? a.sold_price : a.est_price) ? group(editing ? a.sold_price : a.est_price, ' ') : ''}" placeholder="0" autocomplete="off"><em>so'm</em></label>
       <p class="preview" id="sell-preview" aria-live="polite"></p>
       <div class="two">
-        <label class="field"><span>Sotilgan sana</span><input class="plain" name="sold_at" type="date" required value="${todayISO()}" max="${todayISO()}"></label>
-        <label class="field"><span>Xaridor (ixtiyoriy)</span><input class="plain" name="buyer" maxlength="80" placeholder="Ism yoki @username" autocomplete="off"></label>
+        <label class="field"><span>Sotilgan sana</span><input class="plain" name="sold_at" type="date" required value="${editing && a.sold_at ? String(a.sold_at).slice(0, 10) : todayISO()}" max="${todayISO()}"></label>
+        <label class="field"><span>Xaridor (ixtiyoriy)</span><input class="plain" name="buyer" maxlength="80" value="${esc(a.buyer || '')}" placeholder="Ism yoki @username" autocomplete="off"></label>
       </div>
-      ${a.kind === 'partner' ? `<label class="check-row"><input type="checkbox" name="paid"><span>Sherik ulushi to'lab bo'lindi</span></label>` : ''}
+      ${a.kind === 'partner' ? `<label class="check-row"><input type="checkbox" name="paid" ${a.partner_paid ? 'checked' : ''}><span>Sherik ulushi to'lab bo'lindi</span></label>` : ''}
       <p class="form-error" role="alert" hidden></p>
       <button class="btn block" type="submit">Saqlash</button>
     </form>`,
@@ -64,15 +65,17 @@ registerForms({
       await markSold(id, { price, date, buyer: String(fd.get('buyer') || '').trim(), partnerPaid: !!fd.get('paid') });
       dropOverlays();
       renderTab();
-      toast('Sotuv yozildi ✅', {
-        action: {
-          label: 'Qaytarish',
-          fn: async () => {
-            await unsell(id);
-            renderTab();
+      if (form.dataset.edit === '1') toast('Sotuv ma\'lumoti saqlandi ✅');
+      else
+        toast('Sotuv yozildi ✅ Akkaunt «Sotilganlar»ga o\'tdi', {
+          action: {
+            label: 'Qaytarish',
+            fn: async () => {
+              await unsell(id);
+              renderTab();
+            },
           },
-        },
-      });
+        });
     } catch (e) {
       console.error(e);
       setBusy(form, false);

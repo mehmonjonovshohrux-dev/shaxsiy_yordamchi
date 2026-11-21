@@ -1,11 +1,12 @@
 -- =====================================================================
 -- 003 (IXTIYORIY, lekin tavsiya etiladi): 2 bosqichli tasdiqlashni MAJBURIY qilish.
 --
--- Avval ilovada  Sozlama -> 2 bosqichli tasdiqlash  ni yoqing va ishlashini tekshiring.
+-- Avval ilovada  Menyu -> Ma'lumotlar va xavfsizlik -> 2 bosqichli tasdiqlash  ni yoqing va ishlashini tekshiring.
 -- Shundan keyin shu faylni Run qiling: kod (Authenticator) bo'lmasa, parol o'g'irlansa
 -- ham bazadagi ma'lumot va rasmlarga kirib bo'lmaydi.
 --
 -- Qaytarish uchun:  drop policy "require_mfa" on public.accounts;
+--                   drop policy "require_mfa_secrets" on public.account_secrets;
 --                   drop policy "require_mfa_files" on storage.objects;
 -- =====================================================================
 
@@ -13,6 +14,14 @@ drop policy if exists "require_mfa" on public.accounts;
 create policy "require_mfa" on public.accounts
   as restrictive to authenticated
   using ((select auth.jwt() ->> 'aal') = 'aal2');
+
+-- 004 ishga tushirilgan bo'lsa (akkaunt kirish ma'lumotlari)
+do $$ begin
+  if to_regclass('public.account_secrets') is not null then
+    execute 'drop policy if exists "require_mfa_secrets" on public.account_secrets';
+    execute 'create policy "require_mfa_secrets" on public.account_secrets as restrictive to authenticated using ((select auth.jwt() ->> ''aal'') = ''aal2'')';
+  end if;
+end $$;
 
 drop policy if exists "require_mfa_files" on storage.objects;
 create policy "require_mfa_files" on storage.objects

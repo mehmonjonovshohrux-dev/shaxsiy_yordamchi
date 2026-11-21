@@ -61,3 +61,6 @@ document.addEventListener('change', (e) => {
   const fn = inputs.get(el.dataset.change);
   if (fn) fn(el, e);
 });
+
+// Boshqa joydan amalni nomi bilan ishga tushirish
+export const trigger = (name, el = document.body) => acts.get(name)?.(el);

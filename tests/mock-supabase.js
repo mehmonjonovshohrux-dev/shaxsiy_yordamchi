@@ -1,12 +1,19 @@
 // Sinov uchun soxta supabase (xotirada ishlaydi)
 (function () {
-  const store = { accounts: [], user: localStorage.getItem('__user') ? { id: 'u1', email: 'a@b.uz' } : null, otp: '123456', pw: 'Old#Passw0rd1', n: 0, listeners: [] };
+  const store = { secrets: {}, accounts: JSON.parse(localStorage.getItem('__seed') || '[]'), user: localStorage.getItem('__user') ? { id: 'u1', email: 'a@b.uz' } : null, otp: '123456', pw: 'Old#Passw0rd1', n: 0, listeners: [] };
   window.__mock = store;
   const sess = () => (store.user ? { user: store.user, access_token: 't' } : null);
   const emit = (ev) => store.listeners.forEach((f) => f(ev, sess()));
   const ok = (data) => Promise.resolve({ data, error: null });
   const err = (message) => Promise.resolve({ data: null, error: { message } });
   function q(table) {
+    if (table === 'account_secrets') {
+      let f = null, op = 'sel', patch;
+      const b = { select() { return b; }, eq(_, v) { f = v; return b; }, maybeSingle() { return ok(store.secrets[f] || null); },
+        upsert(p) { store.secrets[p.account_id] = p; return ok(null); }, delete() { op = 'del'; return b; },
+        then(res, rej) { if (op === 'del') delete store.secrets[f]; return ok(null).then(res, rej); } };
+      return b;
+    }
     let rows = store[table], op = 'select', patch, filt = null, single = false;
     const run = () => {
       if (op === 'select') return ok([...rows]);
@@ -28,6 +35,7 @@
     storage: { from: () => ({
       upload: (p, f) => { files[p] = f; return ok({ path: p }); },
       remove: (ps) => { ps.forEach((p) => delete files[p]); return ok([]); },
+      createSignedUrl: (p) => ok({ signedUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' }),
       createSignedUrls: (ps) => ok(ps.map((p) => ({ path: p, signedUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', error: null }))),
     }) },
     auth: {
@@ -42,7 +50,7 @@
       resend: () => ok({}),
       resetPasswordForEmail: (email) => { store.resetFor = email; return ok({}); },
       verifyOtp: ({ token }) => { if (token !== store.otp) return err('Token has expired or is invalid'); store.user = { id: 'u1', email: store.resetFor }; return ok({ session: sess() }); },
-      updateUser: ({ password }) => { store.pw = password; return ok({ user: store.user }); },
+      updateUser: ({ password, data }) => { if (password) store.pw = password; if (data) store.user = { ...store.user, user_metadata: { ...(store.user.user_metadata || {}), ...data } }; return ok({ user: store.user }); },
       mfa: {
         getAuthenticatorAssuranceLevel: () => ok({ currentLevel: 'aal1', nextLevel: 'aal1' }),
         listFactors: () => ok({ totp: [], all: [] }),

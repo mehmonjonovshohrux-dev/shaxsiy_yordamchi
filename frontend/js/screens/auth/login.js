@@ -1,10 +1,9 @@
 // Kirish oynasi
-import { CONFIG } from '../../config.js';
 import { esc, setBusy, showFormError } from '../../core/dom.js';
-import { registerForms, registerActions } from '../../core/actions.js';
+import { registerForms } from '../../core/actions.js';
 import { icon } from '../../ui/icons.js';
 import { signIn, humanizeAuthError } from '../../services/auth.service.js';
-import { authLayout, registerStep, go, finish } from './flow.js';
+import { authLayout, registerStep, finish } from './flow.js';
 
 const LAST_EMAIL = 'accsavdo.lastEmail';
 
@@ -31,8 +30,7 @@ registerStep('login', {
         <p class="form-error" role="alert" hidden></p>
         <button class="btn block" type="submit">Kirish</button>
       </form>
-      <button type="button" class="link-btn" data-act="to-forgot">Parolni unutdingizmi?</button>
-      ${CONFIG.ALLOW_SIGNUP ? `<p class="alt-line">Hisobingiz yo'qmi? <button type="button" class="link-btn inline" data-act="to-register">Ro'yxatdan o'tish</button></p>` : ''}`,
+      <p class="alt-line xs">Bu shaxsiy ilova: hisob egasi tomonidan oldindan yaratiladi.</p>`,
     });
   },
 });
@@ -56,10 +54,3 @@ registerForms({
   },
 });
 
-registerActions({
-  'to-forgot': () => {
-    const email = document.querySelector('form[data-form=login] [name=email]')?.value.trim() || '';
-    go('forgot', { email });
-  },
-  'to-register': () => go('register'),
-});

@@ -1,6 +1,9 @@
 // Bosh sahifa: oylik foyda, ko'rsatkichlar, maslahatlar, grafik, so'nggi sotuvlar
 import { esc } from '../core/dom.js';
-import { greeting, som, signedSom, dateUz } from '../core/format.js';
+import { som, signedSom, dateUz, daysSince } from '../core/format.js';
+import { CONFIG } from '../config.js';
+import { makeGreeting } from '../logic/greetings.js';
+import { getProfile } from '../services/profile.service.js';
 import { registerActions } from '../core/actions.js';
 import { icon } from '../ui/icons.js';
 import { barChart } from '../ui/chart.js';
@@ -13,9 +16,41 @@ import { openSettle } from './partner-settle.js';
 
 const LEVEL_ICON = { bad: 'alert', warn: 'alert', info: 'info', good: 'trend' };
 
-function nameOf(user) {
-  const n = (user?.email || '').split('@')[0] || '';
-  return n ? n.charAt(0).toUpperCase() + n.slice(1) : '';
+// Salomlashuv ilova ochilganda bir marta tanlanadi (har safar boshqa matn), tab almashganda o'zgarmaydi
+let greet = null;
+let greetKey = '';
+function greetingHtml(st, now) {
+  const p = getProfile();
+  const key = `${p.first}|${p.last}`;
+  if (key !== greetKey) greet = null; // ism o'zgarsa, salom yangilanadi
+  if (!greet && st.loaded) {
+    greetKey = key;
+    const active = st.accounts.filter((a) => a.status === 'active');
+    const cur = summarize(st.accounts, 'month', now).total;
+    const up = unpaidPartner(st.accounts);
+    greet = makeGreeting({
+      first: p.displayFirst,
+      last: p.last,
+      now,
+      ctx: {
+        active: active.length,
+        tied: som(active.reduce((s, a) => s + (a.buy_price || 0), 0)),
+        monthProfit: cur.profit,
+        monthProfitText: signedSom(cur.profit),
+        monthSold: cur.soldCount,
+        unpaid: up.sum,
+        unpaidText: som(up.sum),
+        stale: active.filter((a) => daysSince(a.created_at, now) >= CONFIG.STALE_DAYS).length,
+      },
+    });
+  }
+  if (!greet) return '<div class="greet"><i class="sk-line"></i></div>';
+  return `<div class="greet"><h2 class="greet-title">${esc(greet.title)}</h2>${greet.sub ? `<p class="greet-sub">${esc(greet.sub)}</p>` : ''}</div>`;
+}
+
+function profileCard() {
+  if (getProfile().complete) return '';
+  return `<div class="tip info"><span class="tip-ic">${icon('info', 18)}</span><span class="tip-tx">Profilni to'ldiring: ism va telefon raqamingizni kiriting.</span><button type="button" class="tip-cta" data-act="open-profile">Kiritish</button></div>`;
 }
 
 function view(st) {
@@ -27,7 +62,7 @@ function view(st) {
 
   if (st.loaded && st.accounts.length === 0) {
     return `
-    <p class="greet">${greeting(now)}, <b>${esc(nameOf(st.user))}</b> 👋</p>
+    ${greetingHtml(st, now)}${profileCard()}
     ${emptyState({ iconName: 'wallet', title: 'Boshlaymizmi?', text: "Birinchi akkauntingizni qo'shing: sotib olgan va sotmoqchi bo'lgan narxni kiritsangiz, foyda avtomatik hisoblanadi.", cta: "Akkaunt qo'shish", act: 'new-account' })}`;
   }
 
@@ -38,7 +73,7 @@ function view(st) {
   const recent = st.accounts.filter((a) => a.status === 'sold').sort((a, b) => (b.sold_at || '').localeCompare(a.sold_at || '')).slice(0, 3);
 
   return `
-  <p class="greet">${greeting(now)}, <b>${esc(nameOf(st.user))}</b> 👋</p>
+  ${greetingHtml(st, now)}${profileCard()}
 
   <section class="hero-card">
     <span class="hero-lbl">Bu oy haqiqiy foyda</span>
@@ -73,7 +108,7 @@ function view(st) {
 
   ${
     recent.length
-      ? `<h2 class="sec-title">So'nggi sotuvlar</h2>
+      ? `<h2 class="sec-title sec-row">So'nggi sotuvlar <button type="button" class="link-btn inline" data-act="goto-tab" data-tab="sold">Hammasi</button></h2>
     <div class="card list">${recent
       .map(
         (a) => `
