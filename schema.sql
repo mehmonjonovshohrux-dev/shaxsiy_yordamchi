@@ -26,6 +26,11 @@ create index if not exists accounts_user_idx on public.accounts (user_id, status
 
 alter table public.accounts enable row level security;
 
+-- Data API ga "yangi jadvallarga avtomatik ruxsat" o'chiq bo'lsa, ruxsatni o'zimiz beramiz.
+-- Faqat login qilganlarga; anonim (kirmagan) foydalanuvchiga hech narsa berilmaydi.
+revoke all on public.accounts from anon;
+grant select, insert, update, delete on public.accounts to authenticated;
+
 drop policy if exists "acc_select" on public.accounts;
 drop policy if exists "acc_insert" on public.accounts;
 drop policy if exists "acc_update" on public.accounts;
@@ -66,6 +71,3 @@ create policy "img_delete" on storage.objects for delete to authenticated
 -- create policy "require_mfa" on public.accounts as restrictive to authenticated
 --   using ((select auth.jwt()->>'aal') = 'aal2');
 -- ---------------------------------------------------------------------
-
-
-
