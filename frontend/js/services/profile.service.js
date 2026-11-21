@@ -8,20 +8,22 @@ import { toE164 } from '../logic/phone.js';
 export function getProfile(user = getState().user) {
   const m = user?.user_metadata || {};
   const email = user?.email || '';
-  const local = email.split('@')[0] || '';
+  const d = CONFIG.DEFAULT_PROFILE || {};
+  // Ism email'dan olinmaydi (email'da ism va familiya yopishib yozilgan bo'ladi)
+  const first = (m.first_name || '').trim() || d.first || '';
+  const last = m.first_name ? (m.last_name || '').trim() : (m.last_name || '').trim() || d.last || '';
   return {
-    first: (m.first_name || '').trim(),
-    last: (m.last_name || '').trim(),
+    first,
+    last,
     phone: m.phone || '',
     avatar: m.avatar || '',
     email,
-    // ism kiritilmagan bo'lsa email boshidan olinadi
-    displayFirst: (m.first_name || '').trim() || (local ? local[0].toUpperCase() + local.slice(1) : ''),
-    complete: !!((m.first_name || '').trim() && m.phone),
+    displayFirst: first,
+    complete: !!(first && m.phone),
   };
 }
 
-export const initials = (p) => ((p.first || p.displayFirst || '?')[0] + (p.last ? p.last[0] : '')).toUpperCase();
+export const initials = (p) => ((p.first || p.email || '?')[0] + (p.first && p.last ? p.last[0] : '')).toUpperCase();
 
 async function updateMeta(patch) {
   const { data, error } = await sb.auth.updateUser({ data: patch });

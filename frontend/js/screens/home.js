@@ -29,7 +29,7 @@ function greetingHtml(st, now) {
     const cur = summarize(st.accounts, 'month', now).total;
     const up = unpaidPartner(st.accounts);
     greet = makeGreeting({
-      first: p.displayFirst,
+      first: p.first,
       last: p.last,
       now,
       ctx: {

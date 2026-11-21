@@ -21,7 +21,7 @@ with sync_playwright() as p:
     pg.wait_for_selector('.form-error'); print('  xabar:', pg.inner_text('.form-error'))
     pg.fill('input[type=password]', 'Old#Passw0rd1'); pg.click('button[type=submit]')
     pg.wait_for_selector('.shell', timeout=5000); step('kirdi: ' + pg.inner_text('.topbar h1'))
-    pg.wait_for_selector('form[data-form=profile]'); pg.keyboard.press('Escape'); pg.wait_for_timeout(500); pg.screenshot(path=f'{shots}/5-home-empty.png')
+    pg.wait_for_selector('form[data-form=profile]'); pg.keyboard.press('Escape'); pg.wait_for_selector('[data-act=onb-later]',timeout=8000); pg.click('[data-act=onb-later]'); pg.wait_for_timeout(500); pg.screenshot(path=f'{shots}/5-home-empty.png')
     step('akkaunt qo\'shish')
     pg.click('.fab'); pg.wait_for_selector('.sheet'); pg.wait_for_timeout(400); pg.screenshot(path=f'{shots}/6-form.png')
     print('  history.length, state:', pg.evaluate('history.length'))

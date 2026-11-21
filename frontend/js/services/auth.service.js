@@ -20,6 +20,13 @@ export function humanizeAuthError(err) {
 export const getSession = async () => (await sb.auth.getSession()).data.session;
 export const signIn = (email, password) => sb.auth.signInWithPassword({ email, password });
 export const signOut = () => sb.auth.signOut();
+export const signOutOthers = () => sb.auth.signOut({ scope: 'others' });
+
+// Serverda 2FA majburiymi (backend/migrations/003 ishga tushirilganmi)
+export async function mfaEnforced() {
+  const { data, error } = await sb.rpc('mfa_enforced');
+  return !error && data === true;
+}
 export const onAuthChange = (fn) => sb.auth.onAuthStateChange(fn);
 
 export const setNewPassword = (password) => sb.auth.updateUser({ password });

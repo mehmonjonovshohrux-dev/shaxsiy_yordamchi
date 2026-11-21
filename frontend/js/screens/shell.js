@@ -16,6 +16,7 @@ const TABS = [
   { id: 'partner', label: '50/50', icon: 'users' },
   { id: 'sold', label: 'Sotilgan', icon: 'archive' },
   { id: 'report', label: 'Hisobot', icon: 'chart' },
+  { id: 'settings', label: 'Sozlama', icon: 'sliders' },
 ];
 const NO_FAB = new Set(['report', 'settings', 'sold']);
 const registry = {};
@@ -31,7 +32,7 @@ export function mountShell() {
       <button type="button" class="icon-btn" data-act="open-menu" aria-label="Menyu">${icon('menu', 24)}</button>
       <h1 id="screen-title"></h1>
       <button type="button" class="icon-btn bell" data-act="open-notes" aria-label="Bildirishnomalar">${icon('bell', 22)}<i class="badge-dot" id="bell-badge" hidden></i></button>
-      <button type="button" class="avatar sm" data-act="open-profile" data-avatar aria-label="Profil"></button>
+      <button type="button" class="avatar sm" data-act="open-account-menu" data-avatar aria-label="Profil menyusi"></button>
     </header>
     <main id="tab-content" class="tab-content" tabindex="-1"></main>
     <button type="button" class="fab" data-act="new-account" aria-label="Akkaunt qo'shish">${icon('plus', 28)}</button>

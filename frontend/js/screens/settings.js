@@ -21,7 +21,7 @@ const row = ({ ic, title, sub = '', act, right = icon('right', 18) }) => `
 function view(st) {
   const p = getProfile(st.user);
   const pinOn = lock.isEnabled(st.user.id);
-  const full = `${p.first} ${p.last}`.trim() || p.displayFirst;
+  const full = `${p.first} ${p.last}`.trim() || p.email;
   return `
   <div class="profile-card tap" role="button" tabindex="0" data-act="open-profile">
     <span class="avatar lg" data-avatar></span>
@@ -34,7 +34,7 @@ function view(st) {
   <div class="card list">
     ${row({ ic: 'user', title: 'Profil', sub: 'Rasm, ism, familiya, telefon', act: 'open-profile' })}
     ${row({ ic: 'shieldcheck', title: "Ma'lumotlar va xavfsizlik", sub: pinOn ? 'PIN yoqilgan · 2FA, parol, zaxira' : 'PIN, barmoq izi, 2FA, parol, zaxira', act: 'open-security' })}
-    ${row({ ic: 'bell', title: 'Bildirishnomalar', sub: 'Eslatmalar va yangilanishlar', act: 'open-notes' })}
+    ${row({ ic: 'bell', title: 'Bildirishnomalar', sub: 'Telefon xabarlari va eslatma sozlamalari', act: 'open-notif-settings' })}
   </div>
 
   <h2 class="sec-title">Ilova</h2>

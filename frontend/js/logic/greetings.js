@@ -75,7 +75,7 @@ export function makeGreeting({ first = '', last = '', ctx = {}, now = new Date()
   const hasFam = !!last;
   const pool = T.filter((v) => (v.t === s || v.t === 'a') && (!v.need || hasFam));
   const v = pool[pickIndex(pool.length, 'accsavdo.greet')];
-  const ism = first || last || 'do\'st';
+  const ism = first || last || "do'st";
   const title = v.x
     .replace('{ism}', ism)
     .replace('{fam}', last || first)

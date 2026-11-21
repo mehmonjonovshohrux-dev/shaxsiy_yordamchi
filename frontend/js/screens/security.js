@@ -145,6 +145,12 @@ registerActions({
   },
   'sec-bio': async (el) => toggleBio(el.getAttribute('aria-checked') !== 'true'),
   'sec-password': () => openChangePassword(),
+  'sec-signout-others': async () => {
+    if (!(await confirmDialog({ title: 'Boshqa qurilmalardan chiqilsinmi?', text: "Faqat shu qurilma tizimda qoladi. Boshqa barcha qurilmalarda qayta kirish talab etiladi.", ok: 'Chiqarish', danger: true }))) return;
+    const { error } = await auth.signOutOthers();
+    if (error) return toast(auth.humanizeAuthError(error), { type: 'error' });
+    toast('Boshqa qurilmalardan chiqarildi ✅');
+  },
   'sec-mfa-on': () => openMfaSetup(),
   'sec-mfa-off': async (el) => {
     if (!(await confirmDialog({ title: "2FA o'chirilsinmi?", text: "Hisobingiz faqat parol bilan himoyalanadi. Tavsiya etilmaydi.", ok: "O'chirish", danger: true }))) return;

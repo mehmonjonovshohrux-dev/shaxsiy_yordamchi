@@ -8,12 +8,16 @@ export const CONFIG = Object.freeze({
 
 
   // Rasmlar
-  VERSION: '2.1.0',
+  VERSION: '2.2.0',
   BUILD_DATE: '2026-11-21',
   ADMIN_TG: 'Ulugbek_5678',
   ADMIN_PHONE: '+998952255678',
   UPDATE_CHECK_MS: 30 * 60 * 1000,
   SECRET_REVEAL_MS: 30000,
+  // Hisob egasi (ism/familiya hali kiritilmagan bo'lsa shu ishlatiladi; email'dan ism olinmaydi)
+  DEFAULT_PROFILE: { first: 'Shohrux', last: 'Mehmonjonov' },
+  // Push bildirishnoma uchun VAPID OCHIQ kalit (backend/PUSH.md dagi qadamlar bilan olinadi). Bo'sh bo'lsa: faqat ilova ochilganda
+  VAPID_PUBLIC_KEY: '',
   BUCKET: 'acc-images',
   MAX_IMAGES: 12,
   MAX_FILE_MB: 25, // bundan katta fayl qabul qilinmaydi

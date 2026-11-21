@@ -12,6 +12,7 @@ import { thumbPath, hydrate, removeFiles } from '../services/images.service.js';
 import { deleteAccount, unsell, setPartnerPaid } from '../services/accounts.service.js';
 import { loadSecret } from '../services/secrets.service.js';
 import { CONFIG } from '../config.js';
+import { requirePin } from '../ui/pin-gate.js';
 import { renderTab } from './shell.js';
 import { openAccountForm } from './account-form.js';
 import { openSellForm } from './sell.js';
@@ -88,6 +89,7 @@ const adText = (a) =>
 registerActions({
   'secret-show': async (el) => {
     const id = el.dataset.id;
+    if (!(await requirePin('Parolni ko\'rish uchun PIN'))) return;
     el.disabled = true;
     try {
       secretCache = await loadSecret(id);
@@ -106,7 +108,8 @@ registerActions({
     if (!v) return;
     try {
       await navigator.clipboard.writeText(v);
-      toast('Nusxalandi');
+      toast('Nusxalandi (30 soniyadan keyin buferdan o\'chiriladi)');
+      setTimeout(() => navigator.clipboard.writeText(' ').catch(() => {}), 30000);
     } catch {
       toast("Nusxalab bo'lmadi", { type: 'error' });
     }

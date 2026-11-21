@@ -36,7 +36,7 @@ export function openMenu() {
     <aside class="drawer" role="dialog" aria-modal="true" aria-label="Menyu" tabindex="-1">
       <div class="drawer-head">
         <span class="avatar lg" data-avatar></span>
-        <div class="grow"><b>${esc(`${p.first} ${p.last}`.trim() || p.displayFirst)}</b><small>${esc(pretty(p.phone) || p.email)}</small></div>
+        <div class="grow"><b>${esc(`${p.first} ${p.last}`.trim() || p.email)}</b><small>${esc(pretty(p.phone) || p.email)}</small></div>
         <button type="button" class="icon-btn light" data-drawer-close aria-label="Yopish">${icon('x', 22)}</button>
       </div>
       <nav class="drawer-nav">

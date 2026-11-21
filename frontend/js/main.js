@@ -24,6 +24,11 @@ import './screens/profile.js';
 import './screens/contact.js';
 import './screens/help.js';
 import './screens/security-hub.js';
+import './screens/notif-settings.js';
+import './screens/account-menu.js';
+import { maybeAskSecurity } from './screens/security-onboarding.js';
+import { maybeDailyDigest } from './services/notify.service.js';
+import { currentNotes } from './screens/shell.js';
 import { openProfile } from './screens/profile.js';
 import { getProfile } from './services/profile.service.js';
 import { startUpdateWatch } from './services/update.service.js';
@@ -57,6 +62,11 @@ async function enterApp() {
       localStorage.setItem('accsavdo.profilePrompted', '1');
       setTimeout(() => openProfile({ intro: true }), 600);
     }
+  } catch {}
+  // Himoya yoqilmagan bo'lsa darhol so'raymiz; tizim bildirishnomasi (kuniga bir marta)
+  setTimeout(maybeAskSecurity, 900);
+  try {
+    maybeDailyDigest(currentNotes());
   } catch {}
   // Bosh ekran yorlig'i: /?new=1 -> yangi akkaunt formasi
   if (new URLSearchParams(location.search).get('new') === '1') {

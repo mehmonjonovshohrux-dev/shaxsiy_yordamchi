@@ -16,7 +16,7 @@ const GUIDE = [
   ['Sotilganni tahrirlash', "«Sotilgan» bo'limidan akkauntni oching: sotilgan narx, sana va xaridorni o'zgartirish yoki akkauntni qayta sotuvga qaytarish mumkin."],
   ['Hisobot', "Hisobot bo'limida oy, 3 oy, yil va hammasi bo'yicha foyda ko'rinadi: shaxsiy va 50/50 alohida. Excel (CSV) va zaxira nusxani ham shu yerdan yuklab olasiz."],
   ['Sherik bilan hisob-kitob', "Bosh sahifadagi «Sherikka to'lanadigan» katagi sherikka berish kerak summani ko'rsatadi. To'langach, akkaunt ichida «Sherikka to'landi» ni belgilang."],
-  ['Bildirishnomalar', "Yuqoridagi qo'ng'iroqcha kunlik hisobot, eslatma va maslahatlarni ko'rsatadi. Yangi versiya chiqsa, shu yerda «Yangilash» tugmasi paydo bo'ladi."],
+  ['Bildirishnomalar', "Yuqoridagi qo'ng'iroqcha kunlik hisobot, eslatma va maslahatlarni ko'rsatadi. Sozlamalar → Bildirishnomalar'da telefon ekraniga xabar kelishini yoqishingiz mumkin. Yangi versiya chiqsa, shu yerda «Yangilash» tugmasi paydo bo'ladi."],
   ['Xavfsizlik', "Menyudan «Ma'lumotlar va xavfsizlik»ni oching: PIN-kod, barmoq izi/yuz bilan ochish, 2 bosqichli tasdiqlash va parolni almashtirish shu yerda. Akkauntlarning login va parollari faqat siz «Ko'rsatish»ni bosganingizda ochiladi."],
   ['Ilovani o\'rnatish', "Telefonda Chrome (yoki iPhone'da Safari) orqali oching va «O'rnatish»ni bosing. Shundan so'ng ilova bosh ekranda turadi va har safar kirish so'ramaydi."],
   ["«Orqaga» tugmasi", "Ochiq oyna bo'lsa, uni yopadi. Boshqa bo'limda bo'lsangiz, Bosh sahifaga qaytaradi. Bosh sahifada ikki marta bosilsa, ilovadan chiqadi."],
@@ -24,6 +24,7 @@ const GUIDE = [
 ];
 
 const CHANGELOG = [
+  ['2.2.0', ["Bosh sahifa sarlavhasi yangi dizaynda", "Sozlama pastki panelda", "Avatar bosilsa profil menyusi", "Bildirishnoma sozlamalari alohida; telefon ekraniga xabar", "Ilova ochilishida PIN/2FA yoqishni so'raydi", "Himoya darajasi va boshqa qurilmalardan chiqish", "Parolni ko'rishdan oldin PIN"]],
   ['2.1.0', ["Profil: rasm, ism, familiya, telefon", "Bildirishnomalar va yangilash tugmasi", "Chap menyu va yangi bo'limlar", "Sotilganlar alohida bo'lim", "Akkaunt kirish ma'lumotlari (login/parol)", "Yo'riqnoma va admin bilan aloqa"]],
   ['2.0.0', ["Yangi dizayn va kirish ekrani", "PIN va barmoq izi bilan qulf", "Rasmlar asl sifatda saqlanadi", "«Orqaga» tugmasi to'g'ri ishlaydi"]],
 ];

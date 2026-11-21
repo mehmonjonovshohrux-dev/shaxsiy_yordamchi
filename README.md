@@ -14,6 +14,10 @@ Ikki qism: **frontend/** (brauzer ilovasi, Cloudflare'da turadi) va **backend/**
 | Salomlashuv matnlari (30+ variant) | `frontend/js/logic/greetings.js` |
 | Bildirishnomalar (qo'ng'iroqcha) | `frontend/js/screens/notifications.js`, `logic/notifications.js` |
 | Yangi versiya tekshiruvi / yangilash | `frontend/js/services/update.service.js`, `frontend/version.json` |
+| Avatar menyusi (profil, chiqish) | `frontend/js/screens/account-menu.js` |
+| Bildirishnoma sozlamalari / telefon xabari | `screens/notif-settings.js`, `services/notify.service.js`, `sw.js`, `backend/PUSH.md` |
+| Ilova ochilganda himoya so'rovi | `screens/security-onboarding.js` |
+| Xavfsizlik tahlili | `backend/SECURITY.md` |
 | Chap menyu | `frontend/js/screens/menu.js` |
 | Sozlamalar sahifasi | `frontend/js/screens/settings.js` |
 | Ma'lumotlar va xavfsizlik (PIN, 2FA…) | `frontend/js/screens/security-hub.js` (amallari `security.js`) |
