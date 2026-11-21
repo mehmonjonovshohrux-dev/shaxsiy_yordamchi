@@ -1,0 +1,23 @@
+/* Kirish ekranlari */
+.auth { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; background: var(--bg); }
+.auth-hero { background: var(--grad); color: #fff; padding: calc(34px + var(--safe-t)) 24px 70px; position: relative; overflow: hidden; }
+.auth-hero::before, .auth-hero::after { content: ""; position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.1); }
+.auth-hero::before { width: 220px; height: 220px; right: -60px; top: -70px; }
+.auth-hero::after { width: 140px; height: 140px; left: -40px; bottom: -50px; }
+.auth-brand { display: flex; align-items: center; gap: 12px; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; position: relative; }
+.auth-tag { margin-top: 10px; max-width: 320px; opacity: 0.9; font-size: 15px; position: relative; }
+.auth-card { background: #fff; border-radius: 26px 26px 0 0; margin-top: -34px; padding: 26px 22px 28px; position: relative; flex: 1; width: 100%; max-width: 480px; align-self: center; box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.08); }
+.auth-card h1 { font-size: 24px; letter-spacing: -0.4px; margin-bottom: 4px; }
+.auth-card .sub { color: var(--muted); margin-bottom: 20px; font-size: 15px; }
+.auth-card .sub b { color: var(--ink); word-break: break-all; }
+.back-link { display: inline-flex; align-items: center; gap: 2px; border: 0; background: none; color: var(--muted); font-weight: 600; padding: 0 0 10px; margin-left: -4px; }
+.alt-line { text-align: center; color: var(--muted); font-size: 15px; margin-top: 18px; }
+.auth-foot { display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); padding: 14px 20px calc(18px + var(--safe-b)); background: #fff; }
+@media (min-width: 560px) {
+  .auth { background: var(--grad); justify-content: center; align-items: center; }
+  .auth-hero { background: none; padding-bottom: 34px; text-align: center; width: 100%; }
+  .auth-brand { justify-content: center; }
+  .auth-tag { margin-inline: auto; }
+  .auth-card { margin-top: 0; border-radius: 26px; flex: 0 0 auto; box-shadow: var(--shadow-lg); }
+  .auth-foot { background: none; color: rgba(255, 255, 255, 0.85); }
+}

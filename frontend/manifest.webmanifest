@@ -1,0 +1,22 @@
+{
+  "id": "/",
+  "name": "AccSavdo: akkaunt savdosi hisobi",
+  "short_name": "AccSavdo",
+  "description": "Akkaunt savdosi: foyda, sherik ulushi va eslatmalar",
+  "lang": "uz",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f6fb",
+  "theme_color": "#4f46e5",
+  "categories": ["finance", "business"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Yangi akkaunt", "short_name": "Qo'shish", "url": "/?new=1", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

@@ -1,0 +1,89 @@
+/* ---------- Qobiq ---------- */
+.shell { max-width: var(--maxw); margin: 0 auto; min-height: 100vh; min-height: 100dvh; }
+.topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; padding: calc(8px + var(--safe-t)) 14px 8px 18px; background: rgba(244, 246, 251, 0.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.topbar h1 { font-size: 22px; letter-spacing: -0.4px; }
+.tab-content { padding: 4px 14px calc(var(--tab-h) + var(--safe-b) + 90px); }
+.tabbar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: min(100%, var(--maxw)); height: calc(var(--tab-h) + var(--safe-b)); padding-bottom: var(--safe-b); display: flex; background: #fff; border-top: 1px solid var(--line); z-index: 30; box-shadow: 0 -6px 20px rgba(15, 23, 42, 0.05); }
+.tabbar button { flex: 1; border: 0; background: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 11.5px; font-weight: 600; position: relative; }
+.tabbar button.on { color: var(--brand); }
+.tabbar button.on::before { content: ""; position: absolute; top: 0; width: 28px; height: 3px; border-radius: 0 0 4px 4px; background: var(--brand); }
+.fab { position: fixed; z-index: 31; right: max(16px, calc(50% - var(--maxw) / 2 + 16px)); bottom: calc(var(--tab-h) + var(--safe-b) + 16px); width: 58px; height: 58px; border-radius: 50%; border: 0; background: var(--grad); color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 24px rgba(79, 70, 229, 0.4); transition: transform 0.15s; }
+.fab:active { transform: scale(0.94); }
+
+.install-bar { display: flex; align-items: center; gap: 12px; margin: 6px 14px 0; padding: 10px 12px; border-radius: 16px; background: linear-gradient(135deg, #eef0ff, #e6f4ff); border: 1px solid #d8defc; }
+.install-ic { width: 40px; height: 40px; border-radius: 12px; background: var(--grad); color: #fff; display: flex; align-items: center; justify-content: center; flex: none; }
+.install-txt { flex: 1; min-width: 0; line-height: 1.25; }
+.install-txt b { display: block; font-size: 14.5px; }
+.install-txt span { font-size: 12.5px; color: var(--muted); }
+.offline-bar { display: flex; align-items: center; justify-content: center; gap: 8px; background: #92400e; color: #fff; padding: calc(6px + var(--safe-t)) 12px 6px; font-size: 13px; font-weight: 600; }
+
+/* ---------- Bosh sahifa ---------- */
+.greet { margin: 2px 4px 12px; color: var(--muted); }
+.greet b { color: var(--ink); }
+.hero-card { background: var(--grad); color: #fff; border-radius: 22px; padding: 20px 20px 18px; margin-bottom: 12px; box-shadow: 0 14px 30px rgba(37, 99, 235, 0.28); position: relative; overflow: hidden; }
+.hero-card::after { content: ""; position: absolute; right: -40px; top: -40px; width: 150px; height: 150px; border-radius: 50%; background: rgba(255, 255, 255, 0.12); }
+.hero-card.small { padding: 16px 18px; }
+.hero-lbl { display: block; font-size: 13.5px; opacity: 0.85; }
+.hero-val { display: block; font-size: 31px; letter-spacing: -0.8px; margin: 2px 0 4px; position: relative; z-index: 1; }
+.hero-card.small .hero-val { font-size: 26px; }
+.hero-val.neg { color: #fecaca; }
+.hero-sub { font-size: 13.5px; opacity: 0.9; position: relative; z-index: 1; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 6px; }
+.sec-title { font-size: 16px; margin: 20px 4px 10px; }
+.chart { width: 100%; height: auto; }
+.chart .bar { fill: #6366f1; }
+.chart .bar.neg { fill: #f87171; }
+.chart .axis { stroke: var(--line); stroke-width: 1; }
+.chart .bar-val { font-size: 9px; fill: #475569; font-weight: 700; }
+.chart .bar-lbl { font-size: 9.5px; fill: var(--muted); }
+
+/* ---------- Ro'yxat ---------- */
+.searchbar { display: flex; gap: 8px; margin-bottom: 12px; }
+.searchbar { position: relative; }
+.searchbar .lead { position: absolute; left: 14px; top: 15px; color: var(--muted); display: flex; z-index: 1; }
+.searchbar > input:not([type=checkbox]):not([type=radio]):not([type=file]) { flex: 1; padding-left: 42px; min-width: 0; }
+.searchbar select { width: 132px; flex: none; padding-left: 10px; padding-right: 6px; font-size: 14px; }
+.list-sum { margin: 0 4px 8px; }
+.acc-card { display: flex; gap: 12px; align-items: center; background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); padding: 10px; margin-bottom: 10px; cursor: pointer; transition: transform 0.12s; }
+.acc-card:active { transform: scale(0.99); }
+.thumb { position: relative; width: 78px; height: 78px; border-radius: 14px; background: #e9edf6; flex: none; overflow: hidden; display: flex; align-items: center; justify-content: center; color: #94a3b8; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.img-count { position: absolute; right: 4px; bottom: 4px; background: rgba(15, 23, 42, 0.75); color: #fff; font-size: 11px; font-weight: 700; border-radius: 8px; padding: 1px 6px; }
+img.broken { opacity: 0; }
+.acc-main { flex: 1; min-width: 0; }
+.acc-title { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acc-sub { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acc-side { text-align: right; flex: none; max-width: 38%; }
+.acc-side .price { font-weight: 700; font-size: 14.5px; }
+.acc-side .profit { font-weight: 700; font-size: 14px; }
+
+/* ---------- Sozlamalar ---------- */
+.profile-card { display: flex; align-items: center; gap: 14px; background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); padding: 14px; }
+.profile-card b { display: block; word-break: break-all; }
+.profile-card small { color: var(--muted); }
+.avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--grad); color: #fff; font-weight: 800; font-size: 20px; display: flex; align-items: center; justify-content: center; flex: none; }
+.set-row { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+.set-row:last-child, #mfa-row .set-row { border-bottom: 0; }
+.set-row.tap { cursor: pointer; }
+.set-ic { width: 36px; height: 36px; border-radius: 11px; background: var(--brand-soft); color: var(--brand); display: flex; align-items: center; justify-content: center; flex: none; }
+.set-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.set-tx small { color: var(--muted); font-size: 12.5px; }
+.set-right { flex: none; display: flex; align-items: center; color: var(--muted); }
+.set-right select { width: auto; min-height: 38px; font-size: 14px; padding: 6px 8px; }
+
+/* ---------- Qulf ekrani ---------- */
+#lock { position: fixed; inset: 0; z-index: 200; background: var(--bg); }
+.lock-screen { height: 100%; max-width: 380px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; gap: 4px; }
+.lock-screen h1 { font-size: 24px; margin-top: 10px; }
+.pin { width: 100%; margin-top: 18px; }
+.pin-dots { display: flex; justify-content: center; gap: 18px; margin-bottom: 8px; }
+.pin-dots i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #94a3b8; transition: background 0.1s, transform 0.1s; }
+.pin-dots i.on { background: var(--brand); border-color: var(--brand); transform: scale(1.1); }
+.pin-msg { min-height: 22px; text-align: center; font-size: 14px; color: var(--muted); margin-bottom: 8px; }
+.pin-msg.bad { color: var(--bad); }
+.pin-keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; justify-items: center; }
+.pin-keys button { width: 74px; height: 74px; border-radius: 50%; border: 0; background: #fff; box-shadow: var(--shadow); font-size: 28px; font-weight: 600; display: flex; align-items: center; justify-content: center; transition: background 0.1s, transform 0.1s; }
+.pin-keys button:active { background: var(--brand-soft); transform: scale(0.94); }
+.pin-keys button.alt { background: transparent; box-shadow: none; color: var(--muted); }
+.pin.shake { animation: shake 0.4s; }
+@keyframes shake { 20%, 60% { transform: translateX(-9px); } 40%, 80% { transform: translateX(9px); } }
