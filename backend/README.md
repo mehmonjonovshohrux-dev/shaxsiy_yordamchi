@@ -29,5 +29,5 @@ Users → hisob → **Send password recovery** yoki parolni qo'lda o'zgartirish.
 `migrations/008_installment_weekly.sql` (yoki `000_hammasi.sql` ni qayta ishga tushiring) — `accounts.inst_weekly` ustunini qo'shadi.
 
 ## 009 — ulangan qurilmalar
-`migrations/009_devices.sql` (yoki `000_hammasi.sql` ni qayta ishga tushiring) — `devices` jadvali (qurilma nomi, oxirgi faollik, ixtiyoriy GPS). Faqat egasiga ko'rinadi (RLS) va 2FA majburiy bo'lsa aal2 talab qilinadi.
+`migrations/009_devices.sql` (yoki `000_hammasi.sql` ni qayta ishga tushiring) — `devices` jadvali (qurilma nomi, oxirgi faollik, avtomatik GPS). Faqat egasiga ko'rinadi (RLS) va 2FA majburiy bo'lsa aal2 talab qilinadi.
 Tavsiya: Supabase → Authentication → Sign In / Providers → "Allow new users to sign up" ni o'chiring, "Secure password change" ni yoqing.

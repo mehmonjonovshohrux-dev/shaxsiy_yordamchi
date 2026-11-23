@@ -6,8 +6,7 @@ import { deviceName } from '../logic/devices.js';
 import * as auth from './auth.service.js';
 
 const ID_KEY = 'accsavdo.deviceId';
-const GEO_KEY = (uid) => `accsavdo.geo.${uid}`;
-const THROTTLE_MS = 5 * 60 * 1000;
+const THROTTLE_MS = 60 * 1000;
 let last = 0;
 
 export function deviceId() {
@@ -22,19 +21,6 @@ export function deviceId() {
     return 'session-only-device';
   }
 }
-
-export const geoEnabled = (uid) => {
-  try {
-    return localStorage.getItem(GEO_KEY(uid)) === '1';
-  } catch {
-    return false;
-  }
-};
-export const setGeoEnabled = (uid, on) => {
-  try {
-    on ? localStorage.setItem(GEO_KEY(uid), '1') : localStorage.removeItem(GEO_KEY(uid));
-  } catch {}
-};
 
 const missing = (e) => {
   const m = `${e?.code || ''} ${e?.message || ''}`.toLowerCase();
@@ -78,11 +64,13 @@ export async function ping({ force = false } = {}) {
       return;
     }
     const row = { user_id: user.id, device_id: id, name: deviceName(navigator.userAgent), last_seen: new Date().toISOString() };
-    if (geoEnabled(user.id)) {
-      try {
-        const p = await getPosition();
-        Object.assign(row, { lat: p.lat, lng: p.lng, accuracy: p.accuracy, loc_at: new Date().toISOString() });
-      } catch {}
+    // Joylashuv xavfsizlik tizimining bir qismi: har kirishda olinadi (ruxsatni brauzer bir marta so'raydi)
+    try {
+      const p = await getPosition();
+      Object.assign(row, { lat: p.lat, lng: p.lng, accuracy: p.accuracy, loc_at: new Date().toISOString() });
+      setState({ geoStatus: 'ok' });
+    } catch (e) {
+      setState({ geoStatus: e?.code === 1 ? 'denied' : e?.message === 'unsupported' ? 'unsupported' : 'error' });
     }
     const { error } = await sb.from('devices').upsert(row, { onConflict: 'user_id,device_id' });
     if (error && !missing(error)) console.warn('devices:', error);
@@ -111,16 +99,8 @@ export async function forgetDevice(id) {
   setState({ devices: getState().devices.filter((d) => d.id !== id) });
 }
 
-// Shu qurilma uchun GPS'ni yoqish/o'chirish (joylashuv darhol yoziladi)
-export async function setLocationTracking(on) {
-  const uid = getState().user.id;
-  if (on) {
-    await getPosition(); // ruxsat so'raladi; rad etilsa xato tashlaydi
-    setGeoEnabled(uid, true);
-    await ping({ force: true });
-  } else {
-    setGeoEnabled(uid, false);
-    await sb.from('devices').update({ lat: null, lng: null, accuracy: null, loc_at: null }).eq('device_id', deviceId());
-    await loadDevices().catch(() => {});
-  }
+// Ruxsat berilmagan bo'lsa, qayta so'rash (brauzer rad etgan bo'lsa, sozlamalardan yoqish kerak)
+export async function retryLocation() {
+  await ping({ force: true });
+  return getState().geoStatus;
 }

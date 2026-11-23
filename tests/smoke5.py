@@ -37,9 +37,9 @@ with sync_playwright() as p:
     pg.wait_for_selector('[data-act=open-devices]'); pg.click('[data-act=open-devices]'); pg.wait_for_selector('.dev'); pg.wait_for_timeout(300)
     ok(len(pg.query_selector_all('.dev'))==2,'2 ta qurilma ko\'rinadi'); ok('Shu qurilma' in pg.inner_text('.dev'),'joriy qurilma belgilangan')
     ok(pg.query_selector('a.dev-loc[href*="openstreetmap.org"]') is not None,'joylashuv: xaritada ko\'rish havolasi'); pg.screenshot(path=f'{shots}/61-devices.png')
-    pg.click('[data-act=dev-geo]'); pg.wait_for_timeout(700)
+    pg.wait_for_timeout(300)
     me=[d for d in pg.evaluate("window.__mock.devices") if d['id']!='dvX'][0]
-    ok(abs(me.get('lat',0)-41.3111)<1e-6,'GPS saqlandi: %s,%s'%(me.get('lat'),me.get('lng')))
+    ok(abs(me.get('lat',0)-41.3111)<1e-6,'GPS so\'ralmasdan, avtomatik saqlandi: %s,%s'%(me.get('lat'),me.get('lng')))
     pg.click('[data-act=dev-revoke]'); pg.wait_for_selector('button[data-c="1"]'); pg.click('button[data-c="1"]'); pg.wait_for_timeout(500)
     ok(pg.evaluate("window.__mock.devices.find(d=>d.id==='dvX').revoked")==True,'boshqa qurilma chiqarildi (revoked)')
     # chiqarilgan qurilma ochilganda tizimdan chiqadi
@@ -68,6 +68,14 @@ with sync_playwright() as p:
     ok(pg.evaluate("window.__mock.pw")=='Old#Passw0rd1','noto\'g\'ri kod bilan parol o\'zgarmadi')
     pg.fill('input[name=code]','123456'); pg.fill('input[name=password]','Zamon#Kitob8Quyosh'); pg.fill('input[name=confirm]','Zamon#Kitob8Quyosh'); pg.evaluate("document.querySelector('form[data-form=change-pw] button[type=submit]').disabled=false"); pg.click('form[data-form=change-pw] button[type=submit]'); pg.wait_for_timeout(800)
     ok(pg.evaluate("window.__mock.pw")=='Zamon#Kitob8Quyosh','to\'g\'ri kod bilan parol yangilandi'); ok(pg.evaluate("window.__mock.others")>=1,'boshqa qurilmalar chiqarildi')
+    print('• ruxsat rad etilgan')
+    ctx2=b.new_context(viewport={'width':360,'height':740},is_mobile=True,has_touch=True)
+    ctx2.add_init_script("localStorage.setItem('__user','1'); localStorage.setItem('__mfa','1'); localStorage.setItem('__seed','[]'); localStorage.setItem('accsavdo.profilePrompted','1')")
+    ctx2.route('**/vendor/supabase.min.js',lambda r:r.fulfill(body=mock,content_type='application/javascript'))
+    ctx2.add_init_script("navigator.geolocation.getCurrentPosition=(ok,err)=>err({code:1,message:'denied'})")
+    q=ctx2.new_page(); q.goto('http://127.0.0.1:8767/'); q.wait_for_selector('.shell'); q.wait_for_selector('[data-act=onb-later]',timeout=8000); q.click('[data-act=onb-later]'); q.wait_for_timeout(1200)
+    ok(q.evaluate("window.__mock.devices[0].lat===undefined"),'ruxsatsiz: joylashuv yozilmadi, ilova ishlayapti')
+    q.click('[data-act=open-notes], .bell, #bell-badge') if False else None
     print('console xatolar:',errs); 
     print('FAIL:',fails)
     b.close()

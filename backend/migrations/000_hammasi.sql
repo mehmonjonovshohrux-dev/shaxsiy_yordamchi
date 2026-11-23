@@ -188,7 +188,7 @@ alter table public.accounts add  constraint accounts_inst_weekly check (inst_wee
 
 -- ################ 009_devices.sql ################
 -- =====================================================================
--- 009: ulangan qurilmalar ro'yxati (+ ixtiyoriy GPS joylashuv). Idempotent.
+-- 009: ulangan qurilmalar ro'yxati (+ avtomatik GPS joylashuv). Idempotent.
 -- Har bir qurilma ilovani ochganda o'zining qatorini yangilaydi. Qatorlar faqat egasiga ko'rinadi (RLS).
 -- =====================================================================
 create table if not exists public.devices (

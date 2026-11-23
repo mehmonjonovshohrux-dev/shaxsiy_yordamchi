@@ -5,6 +5,7 @@ const state = {
   payments: [], // muddatli to'lovlar
   weeklyReady: true, // false: bazada 008 ishga tushirilmagan (haftalik rejim yashiriladi)
   devices: [],
+  geoStatus: 'unknown', // ok | denied | unsupported | error
   devicesReady: true, // false: bazada 009 ishga tushirilmagan
   instReady: true, // false: bazada 006 ishga tushirilmagan
   loaded: false,

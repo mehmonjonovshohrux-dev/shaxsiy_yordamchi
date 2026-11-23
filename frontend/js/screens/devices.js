@@ -29,24 +29,32 @@ function card(d, curId) {
   </div>`;
 }
 
+const GEO = {
+  ok: ['good', 'Joylashuv yoqilgan', "Har safar ilovaga kirganda avtomatik saqlanadi."],
+  denied: ['bad', 'Joylashuvga ruxsat berilmagan', "Telefon yoki brauzer sozlamalarida shu sayt uchun «Joylashuv» ni «Ruxsat berish» qiling, so'ng «Qayta urinish» ni bosing."],
+  unsupported: ['warn', "Bu qurilma joylashuvni qo'llamaydi", ''],
+  error: ['warn', 'Joylashuvni aniqlab bo\'lmadi', "GPS yoqilganini tekshiring va qayta urinib ko'ring."],
+  unknown: ['warn', 'Joylashuv tekshirilmoqda…', ''],
+};
+const geoRow = (status) => {
+  const [lvl, title, text] = GEO[status] || GEO.unknown;
+  return `<p class="tip ${lvl === 'good' ? 'info' : 'warn'}"><span class="tip-ic">${icon(lvl === 'good' ? 'pin' : 'alert', 18)}</span><span class="tip-tx"><b>${title}</b>${text ? `<br>${text}` : ''}${status === 'ok' ? '' : '<br><button type="button" class="btn sm" data-act="dev-geo">Qayta urinish</button>'}</span></p>`;
+};
+
 function html() {
   const st = getState();
   const curId = dev.deviceId();
-  const geo = dev.geoEnabled(st.user.id);
   if (!st.devicesReady) {
     return `<p class="tip warn"><span class="tip-ic">${icon('alert', 18)}</span><span class="tip-tx">Qurilmalar ro'yxati yoqilmagan: Supabase'da <b>009_devices.sql</b> (yoki 000_hammasi.sql) ni ishga tushiring.</span></p>`;
   }
   const list = [...st.devices].sort((a, b) => (a.device_id === curId ? -1 : b.device_id === curId ? 1 : 0));
   return `
   <p class="muted small">Hisobingizga kirgan qurilmalar. Notanish qurilma ko'rsangiz, uni chiqaring va parolni almashtiring.</p>
-  <div class="card list">
-    <div class="set-row"><span class="set-ic">${icon('pin', 20)}</span><span class="set-tx"><b>Shu qurilmaning joylashuvi (GPS)</b><small>Ilova ochilganda oxirgi joy saqlanadi. Telefoningiz ruxsat so'raydi.</small></span>
-      <span class="set-right"><button type="button" class="switch ${geo ? 'on' : ''}" role="switch" aria-checked="${geo}" data-act="dev-geo"><i></i></button></span></div>
-  </div>
+${geoRow(st.geoStatus)}
   <h2 class="sec-title">Qurilmalar (${list.length})</h2>
   ${list.map((d) => card(d, curId)).join('') || '<p class="muted">Hozircha ro\'yxat bo\'sh.</p>'}
   <button type="button" class="btn danger-ghost block mt" data-act="sec-signout-others">${icon('logout', 18)} Boshqa barcha qurilmalardan chiqarish</button>
-  <p class="muted xs">Joylashuv faqat qurilmada ilova ochilganda yangilanadi: bu jonli kuzatuv emas va yo'qolgan telefonni topish uchun emas. «Chiqarish» tugmasi qurilmani keyingi ochilishida tizimdan chiqaradi; darhol va to'liq chiqarish uchun pastdagi tugmani bosing.</p>`;
+  <p class="muted xs">Joylashuv har safar qurilmada ilova ochilganda yangilanadi: bu jonli kuzatuv emas va yo'qolgan telefonni topish uchun emas. «Chiqarish» tugmasi qurilmani keyingi ochilishida tizimdan chiqaradi; darhol va to'liq chiqarish uchun pastdagi tugmani bosing.</p>`;
 }
 
 function repaint() {
@@ -65,16 +73,13 @@ export async function openDevices() {
 
 registerActions({
   'open-devices': () => openDevices(),
-  'dev-geo': async (el) => {
-    const on = el.getAttribute('aria-checked') !== 'true';
+  'dev-geo': async () => {
+    await dev.retryLocation();
     try {
-      await dev.setLocationTracking(on);
-      toast(on ? 'Joylashuv yoqildi ✅' : "Joylashuv o'chirildi");
-    } catch (e) {
-      console.warn(e);
-      toast("Joylashuvga ruxsat berilmadi. Telefon sozlamalarida ruxsat bering", { type: 'error' });
-    }
+      await dev.loadDevices();
+    } catch {}
     repaint();
+    if (getState().geoStatus === 'ok') toast('Joylashuv yoqildi ✅');
   },
   'dev-revoke': async (el) => {
     if (!(await confirmDialog({ title: 'Qurilma chiqarilsinmi?', text: "U keyingi safar ilovani ochganda tizimdan chiqadi.", ok: 'Chiqarish', danger: true }))) return;

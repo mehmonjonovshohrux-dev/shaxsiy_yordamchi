@@ -49,7 +49,7 @@ export function mountShell() {
 
 export function currentNotes() {
   const st = getState();
-  return buildNotes({ accounts: st.accounts, payments: st.payments, mfaEnforced: st.mfaEnforced, update: st.update, profileIncomplete: !getProfile().complete, devices: st.devices, deviceId: deviceId() });
+  return buildNotes({ accounts: st.accounts, payments: st.payments, mfaEnforced: st.mfaEnforced, update: st.update, profileIncomplete: !getProfile().complete, devices: st.devices, deviceId: deviceId(), geoStatus: st.geoStatus });
 }
 
 let lastSig = '';
