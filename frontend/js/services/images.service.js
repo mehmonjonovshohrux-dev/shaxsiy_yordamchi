@@ -8,8 +8,8 @@ import { sb } from '../core/supabase.js';
 import { CONFIG } from '../config.js';
 
 const B = () => sb.storage.from(CONFIG.BUCKET);
-const EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'image/heic': 'heic', 'image/heif': 'heif', 'image/avif': 'avif', 'image/bmp': 'bmp', 'image/tiff': 'tif' };
-const IMG_NAME = /\.(jpe?g|png|webp|gif|heic|heif|avif|bmp|tiff?|jfif)$/i;
+const EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'image/heic': 'heic', 'image/heif': 'heif', 'image/avif': 'avif', 'image/bmp': 'bmp', 'image/tiff': 'tif', 'image/svg+xml': 'svg', 'image/x-icon': 'ico', 'image/vnd.microsoft.icon': 'ico', 'image/jxl': 'jxl' };
+const IMG_NAME = /\.(jpe?g|png|webp|gif|heic|heif|avif|bmp|tiff?|jfif|svg|ico|jxl|jp2|psd|dng|raw|cr2|cr3|nef|arw|orf|rw2|tga)$/i;
 
 export const thumbPath = (p) => p.replace(/\.[^./]+$/, '.t.jpg');
 export const isThumb = (p) => /\.t\.jpg$/.test(p);
@@ -43,7 +43,9 @@ function draw(bmp, maxSide, quality) {
 // Faylni tekshirib, yuklashga tayyorlaydi
 export async function prepare(file) {
   const mb = file.size / 1048576;
-  if (!(file.type.startsWith('image/') || IMG_NAME.test(file.name))) throw new Error(`«${file.name}» rasm emas`);
+  // Har qanday rasm formati: image/* yoki ma'lum kengaytma (RAW, DNG, SVG, ICO, JXL, PSD…) yoki turi aniqlanmagan fayl
+  if (/^(video|audio)\//.test(file.type) || file.type === 'application/pdf') throw new Error(`«${file.name}» rasm emas`);
+  if (!file.type.startsWith('image/') && file.type && !IMG_NAME.test(file.name)) throw new Error(`«${file.name}» rasm emas`);
   if (mb > CONFIG.MAX_FILE_MB) throw new Error(`«${file.name}» juda katta (${mb.toFixed(1)} MB). Eng ko'pi ${CONFIG.MAX_FILE_MB} MB.`);
   if (file.size === 0) throw new Error(`«${file.name}» bo'sh fayl`);
 

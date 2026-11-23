@@ -6,7 +6,7 @@ import { getState, setState } from './core/store.js';
 import { initRouter, overlayCount } from './core/router.js';
 import { toast } from './ui/toast.js';
 import { onInstallChange } from './services/install.service.js';
-import { getSession, onAuthChange, mfaNeeded } from './services/auth.service.js';
+import { getSession, onAuthChange, mfaNeeded, mfaFactor } from './services/auth.service.js';
 import { loadAccounts } from './services/accounts.service.js';
 import * as lock from './services/lock.service.js';
 import { startAuth } from './screens/auth/index.js';
@@ -38,6 +38,8 @@ async function afterAuth() {
   if (await mfaNeeded()) return startAuth('mfa', afterAuth);
   const session = await getSession();
   if (!session) return startAuth('login', afterAuth);
+  // 2FA majburiy: yoqilmagan bo'lsa, avval shuni sozlatamiz (parol qayta so'raladi)
+  if (!(await mfaFactor())) return startAuth('mfa-setup', afterAuth);
   setState({ user: session.user });
   if (lock.isEnabled(session.user.id)) {
     $('#app').innerHTML = ''; // qulf ochilmaguncha ma'lumot ko'rinmaydi

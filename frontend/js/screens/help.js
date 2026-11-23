@@ -24,6 +24,7 @@ const GUIDE = [
 ];
 
 const CHANGELOG = [
+  ['2.3.0', ["2 bosqichli tasdiqlash majburiy: kirishda parol qayta so'raladi va bir martalik kod talab etiladi", "Akkaunt formasidan «O'yin» va «Izoh» olib tashlandi", "Sotuvni saqlash tuzatildi", "Rasm har qanday formatda qabul qilinadi"]],
   ['2.2.0', ["Bosh sahifa sarlavhasi yangi dizaynda", "Sozlama pastki panelda", "Avatar bosilsa profil menyusi", "Bildirishnoma sozlamalari alohida; telefon ekraniga xabar", "Ilova ochilishida PIN/2FA yoqishni so'raydi", "Himoya darajasi va boshqa qurilmalardan chiqish", "Parolni ko'rishdan oldin PIN"]],
   ['2.1.0', ["Profil: rasm, ism, familiya, telefon", "Bildirishnomalar va yangilash tugmasi", "Chap menyu va yangi bo'limlar", "Sotilganlar alohida bo'lim", "Akkaunt kirish ma'lumotlari (login/parol)", "Yo'riqnoma va admin bilan aloqa"]],
   ['2.0.0', ["Yangi dizayn va kirish ekrani", "PIN va barmoq izi bilan qulf", "Rasmlar asl sifatda saqlanadi", "«Orqaga» tugmasi to'g'ri ishlaydi"]],

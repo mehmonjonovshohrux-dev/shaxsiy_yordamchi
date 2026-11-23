@@ -152,11 +152,4 @@ registerActions({
     toast('Boshqa qurilmalardan chiqarildi ✅');
   },
   'sec-mfa-on': () => openMfaSetup(),
-  'sec-mfa-off': async (el) => {
-    if (!(await confirmDialog({ title: "2FA o'chirilsinmi?", text: "Hisobingiz faqat parol bilan himoyalanadi. Tavsiya etilmaydi.", ok: "O'chirish", danger: true }))) return;
-    const { error } = await auth.mfaUnenroll(el.dataset.id);
-    if (error) return toast(auth.humanizeAuthError(error), { type: 'error' });
-    refreshSettings();
-    toast("2FA o'chirildi");
-  },
 });

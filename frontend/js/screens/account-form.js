@@ -71,7 +71,6 @@ export function openAccountForm(id = null, kind = null) {
   const a = id ? findAccount(id) : null;
   const k = a?.kind || kind || (getState().tab === 'partner' ? 'partner' : 'own');
   fs = { secretLoaded: !a, secretFailed: false, id: a?.id || null, existing: [...(a?.images || [])], added: [], removed: [], dirty: false, force: false, saving: false };
-  const games = [...new Set(getState().accounts.map((x) => x.game).filter(Boolean))];
 
   const ctl = openSheet({
     title: a ? 'Akkauntni tahrirlash' : "Yangi akkaunt",
@@ -85,9 +84,6 @@ export function openAccountForm(id = null, kind = null) {
 
       <label class="field"><span>Nomi / ID <i class="req">*</i></span>
         <input class="plain" name="title" required maxlength="120" value="${esc(a?.title)}" placeholder="Masalan: PUBG lvl 60, 5 ta skin" autocomplete="off"></label>
-      <label class="field"><span>O'yin</span>
-        <input class="plain" name="game" maxlength="60" list="games" value="${esc(a?.game)}" placeholder="PUBG Mobile, Free Fire…" autocomplete="off"></label>
-      <datalist id="games">${games.map((g) => `<option value="${esc(g)}">`).join('')}</datalist>
       <div id="partner-wrap" ${k === 'partner' ? '' : 'hidden'}>
         <label class="field"><span>Sherik ismi</span>
           <input class="plain" name="partner_name" maxlength="60" value="${esc(a?.partner_name)}" placeholder="Foydaning yarmi shu odamga" autocomplete="off"></label>
@@ -99,8 +95,6 @@ export function openAccountForm(id = null, kind = null) {
           <input class="plain" name="est_price" inputmode="numeric" data-input="money-preview" value="${money(a?.est_price)}" placeholder="0" autocomplete="off"><em>so'm</em></label>
       </div>
       <p class="preview" id="form-preview" aria-live="polite"></p>
-      <label class="field"><span>Izoh</span>
-        <textarea class="plain" name="notes" maxlength="2000" placeholder="Sizga kerakli ma'lumot (parol emas: parol pastdagi maxsus bo'limga)">${esc(a?.notes)}</textarea></label>
 
       <fieldset class="secret-box">
         <legend>${icon('lock', 16)} Akkaunt kirish ma'lumotlari</legend>
@@ -114,7 +108,7 @@ export function openAccountForm(id = null, kind = null) {
       <div class="field-head"><span>Rasmlar</span><span class="muted small" id="img-count"></span></div>
       <div class="thumbs" id="img-thumbs"></div>
       <label class="btn ghost file-btn">${icon('camera', 18)} Rasm qo'shish
-        <input type="file" id="file-input" accept="image/*,.heic,.heif,.avif" multiple hidden data-change="pick-images">
+        <input type="file" id="file-input" accept="image/*,.heic,.heif,.avif,.jxl,.dng,.raw,.cr2,.nef,.arw,.svg,.ico,.tif,.tiff,.bmp,.jp2,.psd" multiple hidden data-change="pick-images">
       </label>
       <p class="muted xs">Har qanday rasm formati qabul qilinadi. Asl sifat saqlanadi (juda katta rasm ${CONFIG.DOWNSCALE_OVER_MB} MB dan oshsa, sifati deyarli yo'qolmasdan kichraytiriladi).</p>
 
@@ -261,12 +255,10 @@ registerForms({
       const images = fs.coverNew ? [...uploaded, ...fs.existing] : [...fs.existing, ...uploaded];
       const row = {
         title,
-        game: String(fd.get('game') || '').trim(),
         kind,
         partner_name: kind === 'partner' ? String(fd.get('partner_name') || '').trim() : '',
         buy_price: buy,
         est_price: est,
-        notes: String(fd.get('notes') || '').trim(),
         images,
       };
       const isNew = !fs.id;

@@ -35,8 +35,20 @@ export async function deleteAccount(id) {
   dropAccount(id);
 }
 
-export const markSold = (id, { price, date, buyer = '', partnerPaid = false }) =>
-  updateAccount(id, { status: 'sold', sold_price: price, sold_at: date, buyer, partner_paid: partnerPaid });
+export async function markSold(id, { price, date, buyer = '', partnerPaid = false }) {
+  const base = { status: 'sold', sold_price: price, sold_at: date, partner_paid: partnerPaid };
+  try {
+    return await updateAccount(id, { ...base, buyer });
+  } catch (e) {
+    // Bazada «buyer» ustuni yo'q (eski 001) bo'lsa: xaridorsiz saqlaymiz, foydalanuvchiga 001 ni qayta ishga tushirish aytiladi
+    if (/buyer|schema cache|column/i.test(String(e?.message || ''))) {
+      const saved = await updateAccount(id, base);
+      saved._buyerSkipped = true;
+      return saved;
+    }
+    throw e;
+  }
+}
 
 export const unsell = (id) =>
   updateAccount(id, { status: 'active', sold_price: null, sold_at: null, partner_paid: false, buyer: '' });

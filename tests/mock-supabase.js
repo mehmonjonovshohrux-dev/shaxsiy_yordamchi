@@ -1,6 +1,6 @@
 // Sinov uchun soxta supabase (xotirada ishlaydi)
 (function () {
-  const store = { secrets: {}, accounts: JSON.parse(localStorage.getItem('__seed') || '[]'), user: localStorage.getItem('__user') ? { id: 'u1', email: 'a@b.uz' } : null, otp: '123456', pw: 'Old#Passw0rd1', n: 0, listeners: [], factor: localStorage.getItem('__mfa') ? { id: 'f1', factor_type: 'totp', status: 'verified' } : null, aal: 'aal1', enforced: false, others: 0 };
+  const store = { secrets: {}, accounts: JSON.parse(localStorage.getItem('__seed') || '[]'), user: localStorage.getItem('__user') ? { id: 'u1', email: 'a@b.uz' } : null, otp: '123456', pw: 'Old#Passw0rd1', n: 0, listeners: [], factor: localStorage.getItem('__mfa') ? { id: 'f1', factor_type: 'totp', status: 'verified' } : null, aal: (localStorage.getItem('__user') && localStorage.getItem('__mfa')) ? 'aal2' : 'aal1', enforced: false, others: 0 };
   window.__mock = store;
   const sess = () => (store.user ? { user: store.user, access_token: 't' } : null);
   const emit = (ev) => store.listeners.forEach((f) => f(ev, sess()));
@@ -19,7 +19,7 @@
     const run = () => {
       if (op === 'select') return ok([...rows]);
       if (op === 'insert') { const r = { id: 'a' + ++store.n, created_at: new Date().toISOString(), status: 'active', images: [], ...patch }; store.accounts.unshift(r); return single ? ok(r) : ok([r]); }
-      if (op === 'update') { const r = store.accounts.find((x) => x.id === filt); Object.assign(r, patch); return single ? ok(r) : ok([r]); }
+      if (op === 'update') { if (store.noBuyer && 'buyer' in patch) return err("Could not find the 'buyer' column of 'accounts' in the schema cache"); const r = store.accounts.find((x) => x.id === filt); Object.assign(r, patch); return single ? ok(r) : ok([r]); }
       if (op === 'delete') { store.accounts = store.accounts.filter((x) => x.id !== filt); return ok(null); }
     };
     const b = {

@@ -20,11 +20,12 @@ with sync_playwright() as p:
         c.grant_permissions(['notifications'],origin='http://127.0.0.1:8766')
         init="localStorage.setItem('__seed', %s);" % json.dumps(seed)
         if user: init+="localStorage.setItem('__user','1');"
+        if user and mfa: pass
         if mfa: init+="localStorage.setItem('__mfa','1');"
         c.add_init_script(init)
         c.route('**/vendor/supabase.min.js',lambda r:r.fulfill(body=mock,content_type='application/javascript'))
         return c
-    ctx=newctx()
+    ctx=newctx(mfa=True)
     pg=ctx.new_page(); pg.on('console',lambda m:errs.append(m.text) if m.type=='error' else None); pg.on('pageerror',lambda e:errs.append('PAGEERR '+str(e)))
     pg.goto('http://127.0.0.1:8766/'); pg.wait_for_selector('.shell')
     print('• ism: emaildan olinmaydi')
@@ -34,7 +35,7 @@ with sync_playwright() as p:
     ok('A' != pg.inner_text('.topbar .avatar').strip(),'avatar: '+pg.inner_text('.topbar .avatar'))
     print('• himoya so\'rovi')
     pg.wait_for_selector('.setup-list',timeout=8000); pg.screenshot(path=f'{shots}/40-onboarding.png')
-    txt=pg.inner_text('.setup-list'); ok('PIN-kod' in txt and '2 bosqichli' in txt,'PIN va 2FA so\'raldi')
+    txt=pg.inner_text('.setup-list'); ok('PIN-kod' in txt and '2 bosqichli' not in txt,'PIN so\'raldi (2FA allaqachon majburiy)')
     pg.click('[data-act=onb-later]'); pg.wait_for_timeout(500)
     ok(pg.query_selector('.setup-list') is None,'«Keyinroq» yopdi')
     print('• pastki panel va sarlavha')
@@ -58,7 +59,7 @@ with sync_playwright() as p:
     pg.click('.topbar [data-act=open-notes]'); pg.wait_for_selector('.notes-list,.empty'); ok(True,'qo\'ng\'iroqcha xabarlar ro\'yxatini ochadi'); pg.go_back(); pg.wait_for_timeout(400)
     print('• xavfsizlik darajasi')
     pg.click('.set-row[data-act=open-security]'); pg.wait_for_selector('.posture'); pg.wait_for_timeout(500); pg.screenshot(path=f'{shots}/44-posture.png')
-    ok('kuchsiz' in pg.inner_text('.posture'),'baholash: '+pg.inner_text('.posture b'))
+    ok('Majburiy' in pg.inner_text('#mfa-row'),'2FA majburiy: o\'chirish tugmasi yo\'q'); ok(pg.query_selector('[data-act=sec-mfa-off]') is None,'2FA o\'chirib bo\'lmaydi')
     pg.click('[data-act=sec-signout-others]'); pg.wait_for_selector('.dialog,.sheet-wrap.open >> text=Chiqarish',timeout=3000)
     pg.click('text=Chiqarish >> nth=-1'); pg.wait_for_timeout(500); ok(pg.evaluate('window.__mock.others')==1,'boshqa qurilmalardan chiqarildi')
     print('• PIN o\'rnatilgach parol ko\'rsatish PIN so\'raydi')
@@ -77,6 +78,10 @@ with sync_playwright() as p:
     ok(pg.query_selector('.pin-keys') is not None and 'Sir#123' not in pg.inner_text('#secret-card'),'parolni ko\'rishdan oldin PIN so\'raldi')
     for d in '4827': pg.click(f'.pin-keys button[data-k="{d}"]')
     pg.wait_for_timeout(900); ok('Sir#123' in pg.inner_text('#secret-card'),'PIN to\'g\'ri: parol ochildi')
+    print('• sotuv: bazada buyer ustuni yo\'q bo\'lsa ham saqlanadi')
+    pg.evaluate("window.__mock.noBuyer=true"); pg.wait_for_selector('[data-act=do-sell]'); pg.click('[data-act=do-sell]'); pg.wait_for_selector('input[name=sold_price]')
+    pg.fill('input[name=buyer]','@Shohruxbek_023'); pg.click('.sheet-wrap:last-of-type button[type=submit]'); pg.wait_for_timeout(1000)
+    ok(pg.evaluate("window.__mock.accounts.find(a=>a.id==='x1').status")=='sold','sotuv saqlandi (buyer ustunisiz)')
     ctx.close()
 
     print('• 2FA: emailda qayta kirganda kod so\'raladi')

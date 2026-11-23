@@ -23,7 +23,7 @@ const sw = (on, act) => `<button type="button" class="switch ${on ? 'on' : ''}" 
 function mfaRow() {
   if (!mfaState.loaded) return row({ ic: 'shieldcheck', title: '2 bosqichli tasdiqlash (2FA)', sub: 'Tekshirilmoqda…' });
   return mfaState.factor
-    ? row({ ic: 'shieldcheck', title: '2 bosqichli tasdiqlash (2FA)', sub: 'Yoqilgan ✅', right: `<button type="button" class="btn sm danger-ghost" data-act="sec-mfa-off" data-id="${esc(mfaState.factor.id)}">O'chirish</button>` })
+    ? row({ ic: 'shieldcheck', title: '2 bosqichli tasdiqlash (2FA)', sub: 'Majburiy · yoqilgan ✅' })
     : row({ ic: 'shieldcheck', title: '2 bosqichli tasdiqlash (2FA)', sub: "Parol o'g'irlansa ham himoya qiladi. Tavsiya etiladi", right: '<button type="button" class="btn sm" data-act="sec-mfa-on">Yoqish</button>' });
 }
 

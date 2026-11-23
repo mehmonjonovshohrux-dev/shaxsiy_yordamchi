@@ -62,10 +62,11 @@ registerForms({
     setBusy(form, true, 'Saqlanmoqda…');
     try {
       const id = form.dataset.id;
-      await markSold(id, { price, date, buyer: String(fd.get('buyer') || '').trim(), partnerPaid: !!fd.get('paid') });
+      const saved = await markSold(id, { price, date, buyer: String(fd.get('buyer') || '').trim(), partnerPaid: !!fd.get('paid') });
       dropOverlays();
       renderTab();
-      if (form.dataset.edit === '1') toast('Sotuv ma\'lumoti saqlandi ✅');
+      if (saved?._buyerSkipped) toast("Sotuv saqlandi, lekin xaridor yozilmadi: Supabase'da 001_accounts.sql ni qayta ishga tushiring", { type: 'error' });
+      else if (form.dataset.edit === '1') toast('Sotuv ma\'lumoti saqlandi ✅');
       else
         toast('Sotuv yozildi ✅ Akkaunt «Sotilganlar»ga o\'tdi', {
           action: {
@@ -79,7 +80,8 @@ registerForms({
     } catch (e) {
       console.error(e);
       setBusy(form, false);
-      showFormError(form, navigator.onLine ? "Saqlab bo'lmadi. Qayta urinib ko'ring." : "Internet yo'q");
+      const why = String(e?.message || '').slice(0, 160);
+      showFormError(form, navigator.onLine ? `Saqlab bo'lmadi${why ? `: ${why}` : ''}` : "Internet yo'q");
     }
   },
 });

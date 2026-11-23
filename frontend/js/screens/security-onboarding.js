@@ -5,7 +5,6 @@ import { getState } from '../core/store.js';
 import { registerActions, trigger } from '../core/actions.js';
 import { closeTop, overlayCount } from '../core/router.js';
 import * as lock from '../services/lock.service.js';
-import * as auth from '../services/auth.service.js';
 
 let shown = false;
 
@@ -14,11 +13,6 @@ async function missing() {
   const m = [];
   if (!lock.isEnabled(uid)) m.push({ id: 'pin', act: 'sec-pin', ic: 'lock', t: 'PIN-kod', d: 'Telefoningiz boshqa odamga tushsa ham ma\'lumotlar ochilmaydi' });
   else if (!lock.bioEnabled(uid) && (await lock.bioSupported())) m.push({ id: 'bio', act: 'sec-bio', ic: 'finger', t: 'Barmoq izi / yuz', d: 'PIN o\'rniga tezkor va qulay ochish' });
-  let factor = null;
-  try {
-    factor = await auth.mfaFactor();
-  } catch {}
-  if (!factor) m.push({ id: 'mfa', act: 'sec-mfa-on', ic: 'shieldcheck', t: '2 bosqichli tasdiqlash', d: "Parol o'g'irlansa ham hisobingizga kirib bo'lmaydi" });
   return m;
 }
 
