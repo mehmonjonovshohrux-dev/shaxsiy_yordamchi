@@ -11,7 +11,7 @@ import { closeTop } from '../core/router.js';
 import { isInst, status, monthGrid, totals, diffDays } from '../logic/installments.js';
 import { addPayment, removePayment, savePlan, clearPlan } from '../services/payments.service.js';
 import { renderTab } from './shell.js';
-import { openAccount } from './account-detail.js';
+import { instFieldsHtml, mountInstFields, readInst } from '../ui/inst-fields.js';
 
 const WD = ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'];
 const STATE_LABEL = { paid: "To'langan", partial: 'Qisman', overdue: "Muddati o'tgan", upcoming: 'Kutilmoqda' };
@@ -48,6 +48,8 @@ function summaryHtml() {
       <div class="kv"><span>Jami narx</span><b>${som(s.total)}</b></div>
       <div class="kv"><span>To'langan</span><b class="pos">${som(s.paid)}</b></div>
       <div class="kv total"><span>Qoldi</span><b class="${s.overdueCount ? 'neg' : ''}">${som(s.left)}</b></div>
+      ${s.weekly ? `<div class="kv"><span>Haftasiga</span><b>${som(s.weekly)}</b></div>` : ''}
+      <div class="kv"><span>Hozirgacha to'planishi kerak</span><b>${som(s.accrued)}</b></div>
       <div class="kv"><span>Muddat</span><b>${esc(dateUz(a.inst_start || a.sold_at))} → ${esc(dateUz(a.inst_end))}</b></div>
       ${s.overdueCount ? `<p class="tip bad"><span class="tip-tx">Muddati o'tgan: ${som(s.overdueSum)}</span></p>` : ''}
     </div>
@@ -95,11 +97,14 @@ function calHtml() {
     s.parts.forEach((p) => add(p.due, { t: 'due', a, p }));
     s.payments.forEach((pm) => add(String(pm.paid_at).slice(0, 10), { t: 'pay', a, pm }));
   }
+  const ranges = list.map((a) => [String(a.inst_start || a.sold_at).slice(0, 10), String(a.inst_end).slice(0, 10)]);
   const cells = monthGrid(V.y, V.m)
     .map((c) => {
       const es = ev.get(c.iso) || [];
+      const inR = ranges.some(([s0, e0]) => c.iso >= s0 && c.iso <= e0);
+      const edge = ranges.some(([s0, e0]) => c.iso === s0 || c.iso === e0);
       const dots = es.slice(0, 3).map((e) => `<i class="dot ${e.t === 'pay' ? 'pay' : e.p.state}"></i>`).join('');
-      return `<button type="button" class="cal-cell ${c.inMonth ? '' : 'out'} ${c.iso === today ? 'today' : ''} ${c.iso === V.sel ? 'sel' : ''}" data-act="inst-day" data-iso="${c.iso}"><span>${Number(c.iso.slice(8))}</span><span class="dots">${dots}</span></button>`;
+      return `<button type="button" class="cal-cell ${c.inMonth ? '' : 'out'} ${inR ? 'in-range' : ''} ${edge ? 'range-edge' : ''} ${c.iso === today ? 'today' : ''} ${c.iso === V.sel ? 'sel' : ''}" data-act="inst-day" data-iso="${c.iso}"><span>${Number(c.iso.slice(8))}</span><span class="dots">${dots}</span></button>`;
     })
     .join('');
   const sel = V.sel ? ev.get(V.sel) || [] : [];
@@ -118,7 +123,7 @@ function calHtml() {
     : '<p class="muted small center-t">Kunni bosing: shu kundagi to\'lovlar ko\'rinadi.</p>';
   return `<div class="cal-head"><button type="button" class="icon-btn" data-act="inst-month" data-d="-1" aria-label="Oldingi oy">${icon('left', 20)}</button><b>${MONTHS[V.m]} ${V.y}</b><button type="button" class="icon-btn" data-act="inst-month" data-d="1" aria-label="Keyingi oy">${icon('right', 20)}</button></div>
   <div class="cal-grid">${WD.map((d) => `<span class="cal-wd">${d}</span>`).join('')}${cells}</div>
-  <div class="cal-legend"><span><i class="dot paid"></i>To'langan</span><span><i class="dot upcoming"></i>Kutilmoqda</span><span><i class="dot overdue"></i>Muddati o'tgan</span><span><i class="dot pay"></i>To'lov</span></div>
+  <div class="cal-legend"><span><i class="dot paid"></i>To'langan</span><span><i class="dot upcoming"></i>Kutilmoqda</span><span><i class="dot overdue"></i>Muddati o'tgan</span><span><i class="dot pay"></i>To'lov</span><span><i class="range-legend"></i>Muddatli to'lov davri</span></div>
   ${detail}`;
 }
 
@@ -179,21 +184,19 @@ function openPayForm(id, amount = 0, date = todayISO()) {
 
 function openPlanForm(id) {
   const a = findAccount(id);
-  openSheet({
+  const c = openSheet({
     title: "Rejani o'zgartirish",
-    size: 'md',
+    size: 'full',
     html: `<form data-form="inst-plan" data-id="${esc(id)}" novalidate>
-      <div class="two">
-        <label class="field"><span>Boshlanish</span><input class="plain" name="start" type="date" value="${String(a.inst_start || a.sold_at).slice(0, 10)}"></label>
-        <label class="field"><span>Tugash sanasi</span><input class="plain" name="end" type="date" value="${String(a.inst_end).slice(0, 10)}"></label>
-      </div>
-      <label class="field"><span>Qismlar soni</span><input class="plain" name="parts" type="number" inputmode="numeric" min="1" max="60" value="${a.inst_parts}"></label>
+      ${instFieldsHtml({ start: String(a.inst_start || a.sold_at).slice(0, 10), end: String(a.inst_end).slice(0, 10), parts: a.inst_parts, weekly: Number(a.inst_weekly) || 0 })}
       <p class="muted xs">To'langan summalar saqlanib qoladi: ular eng eski qismdan boshlab hisoblanadi.</p>
       <p class="form-error" role="alert" hidden></p>
       <button class="btn block" type="submit">Saqlash</button>
       <button type="button" class="btn danger-ghost block mt" data-act="inst-off" data-id="${esc(id)}">Muddatli to'lovni o'chirish</button>
     </form>`,
   });
+  const form = c.body.querySelector('form');
+  mountInstFields(form, () => Number(a.sold_price) || 0);
 }
 
 registerActions({
@@ -254,18 +257,14 @@ registerForms({
   },
   'inst-plan': async (form, fd) => {
     const id = form.dataset.id;
-    const start = String(fd.get('start'));
-    const end = String(fd.get('end'));
-    const parts = Math.floor(Number(fd.get('parts')));
-    if (!start || !end) return showFormError(form, 'Sanalarni kiriting');
-    if (end < start) return showFormError(form, "Tugash sanasi boshlanishdan oldin bo'lmasin");
-    if (!(parts >= 1 && parts <= 60)) return showFormError(form, 'Qismlar soni 1 dan 60 gacha');
+    const r = readInst(form, fd, Number(findAccount(id).sold_price) || 0);
+    if (r.error) return showFormError(form, r.error);
     setBusy(form, true, 'Saqlanmoqda…');
     try {
-      await savePlan(id, { start, end, parts });
+      await savePlan(id, r.inst);
       closeTop();
       setTimeout(paint, 280);
-      toast(`Reja yangilandi: tugash ${dateUz(end)}`);
+      toast(`Reja yangilandi: tugash ${dateUz(r.inst.end)}`);
     } catch (e) {
       console.error(e);
       setBusy(form, false);

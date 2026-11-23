@@ -24,3 +24,6 @@ uchun front-end buzilsa ham begona ma'lumotga kira olmaydi.
 
 Parolni tiklash oynasi yo'q: bu bir kishilik ilova. Parol esdan chiqsa — Supabase → Authentication →
 Users → hisob → **Send password recovery** yoki parolni qo'lda o'zgartirish.
+
+## 008 — haftalik muddatli to'lov
+`migrations/008_installment_weekly.sql` (yoki `000_hammasi.sql` ni qayta ishga tushiring) — `accounts.inst_weekly` ustunini qo'shadi.

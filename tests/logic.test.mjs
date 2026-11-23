@@ -197,3 +197,21 @@ test('muddatli: kalendar to\'ri 7 ga bo\'linadi', () => {
   assert.equal(g.length % 7, 0);
   assert.equal(g.filter((d) => d.inMonth).length, 30);
 });
+
+test('muddatli: haftalik rejim — har hafta summa qo\'shilib boradi', () => {
+  const s = inst.schedule({ start: '2026-01-01', end: '2026-03-01', parts: 1, total: 1000, weekly: 300 });
+  assert.deepEqual(s.map((p) => p.amount), [300, 300, 300, 100]);
+  assert.deepEqual(s.map((p) => p.due), ['2026-01-08', '2026-01-15', '2026-01-22', '2026-01-29']);
+});
+test('muddatli: haftalik, muddat qisqa bo\'lsa qoldiq tugash sanasiga qo\'shiladi', () => {
+  const s = inst.schedule({ start: '2026-01-01', end: '2026-01-20', parts: 1, total: 1000, weekly: 300 });
+  assert.equal(s.reduce((x, p) => x + p.amount, 0), 1000);
+  assert.equal(s[s.length - 1].due, '2026-01-20');
+});
+test('muddatli: to\'planishi kerak bo\'lgan summa (accrued)', () => {
+  const acc = { id: 'a', status: 'sold', inst_on: true, sold_price: 1000, sold_at: '2026-01-01', inst_start: '2026-01-01', inst_end: '2026-03-01', inst_parts: 1, inst_weekly: 300 };
+  const st = inst.status(acc, [{ account_id: 'a', amount: 300, paid_at: '2026-01-09' }], '2026-01-16');
+  assert.equal(st.accrued, 600);
+  assert.equal(st.paid, 300);
+  assert.equal(st.overdueSum, 300);
+});

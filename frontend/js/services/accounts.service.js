@@ -11,7 +11,7 @@ const must = ({ data, error }) => {
 export async function loadAccounts() {
   try {
     const rows = must(await sb.from('accounts').select('*').order('created_at', { ascending: false }));
-    setState({ accounts: rows || [], loaded: true, loadError: false });
+    setState({ accounts: rows || [], loaded: true, loadError: false, weeklyReady: !rows?.length || 'inst_weekly' in rows[0] });
     await loadPayments();
   } catch (e) {
     console.error(e);
@@ -40,7 +40,7 @@ export async function deleteAccount(id) {
 export async function markSold(id, { price, date, buyer = '', partnerPaid = false, inst = null }) {
   const base = { status: 'sold', sold_price: price, sold_at: date, partner_paid: partnerPaid };
   if (inst === false) Object.assign(base, { inst_on: false });
-  else if (inst) Object.assign(base, { inst_on: true, inst_start: inst.start, inst_end: inst.end, inst_parts: inst.parts });
+  else if (inst) Object.assign(base, { inst_on: true, inst_start: inst.start, inst_end: inst.end, inst_parts: inst.parts, ...(getState().weeklyReady ? { inst_weekly: inst.weekly || 0 } : {}) });
   try {
     return await updateAccount(id, { ...base, buyer });
   } catch (e) {

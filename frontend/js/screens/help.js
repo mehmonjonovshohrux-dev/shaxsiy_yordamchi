@@ -25,6 +25,7 @@ const GUIDE = [
 ];
 
 const CHANGELOG = [
+  ['2.5.0', ["Muddatli to'lov: haftasiga summa (qo'shilib boradi) yoki teng qismlar", "Kalendarda boshlanish va tugash sanasini bosing: oraliq boshqa rangda", "Hozirgacha to'planishi kerak bo'lgan summa ko'rinadi"]],
   ['2.4.0', ["Muddatli to'lov: qismlar, kalendar, to'lovlar tarixi, tugash sanasini o'zgartirish", "Rasm: Galereya, Kamera va Fayl tugmalari", "2FA qayta sozlashda yangi kuchli parol majburiy", "2FA'ni faqat GitHub push orqali nollash mumkin", "Kirish ma'lumotlari xatosi sababi aniq ko'rsatiladi"]],
   ['2.3.0', ["2 bosqichli tasdiqlash majburiy: kirishda parol qayta so'raladi va bir martalik kod talab etiladi", "Akkaunt formasidan «O'yin» va «Izoh» olib tashlandi", "Sotuvni saqlash tuzatildi", "Rasm har qanday formatda qabul qilinadi"]],
   ['2.2.0', ["Bosh sahifa sarlavhasi yangi dizaynda", "Sozlama pastki panelda", "Avatar bosilsa profil menyusi", "Bildirishnoma sozlamalari alohida; telefon ekraniga xabar", "Ilova ochilishida PIN/2FA yoqishni so'raydi", "Himoya darajasi va boshqa qurilmalardan chiqish", "Parolni ko'rishdan oldin PIN"]],

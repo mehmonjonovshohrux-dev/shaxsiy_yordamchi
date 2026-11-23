@@ -35,5 +35,6 @@ export async function removePayment(id) {
   setState({ payments: getState().payments.filter((p) => p.id !== id) });
 }
 
-export const savePlan = (accountId, { start, end, parts }) => updateAccount(accountId, { inst_on: true, inst_start: start, inst_end: end, inst_parts: parts });
+export const savePlan = (accountId, { start, end, parts, weekly = 0 }) =>
+  updateAccount(accountId, { inst_on: true, inst_start: start, inst_end: end, inst_parts: parts, ...(getState().weeklyReady ? { inst_weekly: weekly } : {}) });
 export const clearPlan = (accountId) => updateAccount(accountId, { inst_on: false });
