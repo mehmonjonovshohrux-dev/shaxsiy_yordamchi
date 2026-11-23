@@ -140,7 +140,7 @@ img.broken { opacity: 0; }
 
 /* ---------- Profil, yordam, ilova haqida ---------- */
 .profile-head { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 6px 0 18px; }
-.btn-row.center { justify-content: center; margin-top: 0; }
+.btn-row.center { justify-content: center; flex-wrap: wrap; margin-top: 0; max-width: 100%; }
 .btn-row.center .btn { flex: 0 0 auto; }
 .choice { display: grid; gap: 10px; }
 .faq details { background: #f3f5fb; border-radius: 14px; margin-bottom: 8px; padding: 0 14px; }
@@ -235,3 +235,15 @@ img.broken { opacity: 0; }
 .range-legend { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: #dbeafe; border: 1px solid #93c5fd; }
 .cal-cell.range-edge { box-shadow: inset 0 0 0 2px #2563eb; }
 .cal-cell.sel.in-range { background: var(--brand); color: #fff; }
+
+/* Ulangan qurilmalar */
+.badge.ok { background: var(--good-bg); color: var(--good); }
+.badge.bad { background: var(--bad-bg); color: var(--bad); }
+.dev { padding: 14px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; }
+.dev.revoked { opacity: 0.7; }
+.dev-top { display: flex; align-items: center; gap: 12px; }
+.dev-top .set-tx { flex: 1; min-width: 0; }
+.dev-loc-row { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; font-size: 14px; }
+.dev-loc { display: inline-flex; align-items: center; gap: 4px; color: var(--brand); font-weight: 600; text-decoration: none; }
+.dev .btn { align-self: flex-start; }
+.btn-grid .span2 { grid-column: 1 / -1; }

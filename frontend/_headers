@@ -4,7 +4,7 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: no-referrer
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), publickey-credentials-get=(self), publickey-credentials-create=(self)
+  Permissions-Policy: camera=(), microphone=(), geolocation=(self), payment=(), publickey-credentials-get=(self), publickey-credentials-create=(self)
   Cross-Origin-Opener-Policy: same-origin
 /sw.js
   Cache-Control: no-cache

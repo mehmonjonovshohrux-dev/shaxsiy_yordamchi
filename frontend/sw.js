@@ -1,5 +1,5 @@
 // Service worker: ilova qobig'ini keshlaydi (oflayn ochilishi uchun). Supabase so'rovlari va rasmlar KESHLANMAYDI.
-const VERSION = 'accsavdo-v7';
+const VERSION = 'accsavdo-v8';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(

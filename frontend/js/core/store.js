@@ -4,6 +4,8 @@ const state = {
   accounts: [],
   payments: [], // muddatli to'lovlar
   weeklyReady: true, // false: bazada 008 ishga tushirilmagan (haftalik rejim yashiriladi)
+  devices: [],
+  devicesReady: true, // false: bazada 009 ishga tushirilmagan
   instReady: true, // false: bazada 006 ishga tushirilmagan
   loaded: false,
   loadError: false,

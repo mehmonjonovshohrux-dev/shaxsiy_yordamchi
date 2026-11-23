@@ -4,6 +4,7 @@ import { advice } from './advisor.js';
 import { summarize } from './finance.js';
 import { signedSom, som, todayISO, dateUz } from '../core/format.js';
 import { dueSoon } from './installments.js';
+import { newDevices } from './devices.js';
 
 const hash = (s) => {
   let h = 0;
@@ -11,11 +12,12 @@ const hash = (s) => {
   return Math.abs(h).toString(36);
 };
 
-export function buildNotes({ accounts, payments = [], mfaEnforced = null, now = new Date(), update = null, profileIncomplete = false }) {
+export function buildNotes({ accounts, payments = [], mfaEnforced = null, now = new Date(), update = null, profileIncomplete = false, devices = [], deviceId = '' }) {
   const day = todayISO(now);
   const out = [];
   if (update) out.push({ id: `update:${update.version}`, level: 'info', kind: 'update', title: 'Yangi versiya tayyor', text: `AccSavdo ${update.version} chiqdi. Yangilash tugmasini bosing.` });
   if (mfaEnforced === false) out.push({ id: 'mfa-server', level: 'bad', kind: 'security', title: 'Serverda 2FA majburiy emas', text: "Parol o'g'irlansa, ma'lumotlarga kod so'ralmasdan kirish mumkin. Supabase'da 000_hammasi.sql (yoki 003_require_mfa.sql) ni ishga tushiring." });
+  for (const d of newDevices(devices, deviceId, now.getTime())) out.push({ id: `device:${d.id}`, level: 'warn', kind: 'security', title: 'Yangi qurilma kirdi', text: `${d.name || 'Qurilma'} hisobingizga ulandi. Bu siz bo'lmasangiz, uni chiqaring va parolni almashtiring.`, cta: 'Qurilmalar', act: 'open-devices' });
   if (profileIncomplete) out.push({ id: 'profile', level: 'info', kind: 'profile', title: "Profilni to'ldiring", text: "Ismingiz va telefon raqamingizni kiriting." });
 
   const cur = summarize(accounts, 'month', now).total;

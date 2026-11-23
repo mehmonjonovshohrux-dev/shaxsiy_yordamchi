@@ -19,6 +19,21 @@
         } };
       return b;
     }
+    if (table === 'devices') {
+      store.devices = store.devices || [];
+      let op = 'sel', patch, f = {}, one = false;
+      const b = { select() { return b; }, order() { return b; }, eq(k, v) { f[k] = v; return b; }, maybeSingle() { one = true; return b; },
+        upsert(p) { op = 'ups'; patch = p; return b; }, update(p) { op = 'upd'; patch = p; return b; }, delete() { op = 'del'; return b; },
+        then(res, rej) {
+          if (store.noDevices) return err('relation "public.devices" does not exist').then(res, rej);
+          const m = (d) => Object.entries(f).every(([k, v]) => d[k] === v);
+          if (op === 'ups') { let r = store.devices.find((d) => d.device_id === patch.device_id); if (r) Object.assign(r, patch); else { r = { id: 'dv' + ++store.n, first_seen: new Date().toISOString(), revoked: false, ...patch }; store.devices.push(r); } return ok(r).then(res, rej); }
+          if (op === 'upd') { store.devices.filter(m).forEach((d) => Object.assign(d, patch)); return ok(null).then(res, rej); }
+          if (op === 'del') { store.devices = store.devices.filter((d) => !m(d)); return ok(null).then(res, rej); }
+          const rows = store.devices.filter(m); return ok(one ? rows[0] || null : rows).then(res, rej);
+        } };
+      return b;
+    }
     if (table === 'push_subscriptions') { const b = { upsert() { return ok(null); }, delete() { return b; }, eq() { return b; }, then(res, rej) { return ok(null).then(res, rej); } }; return b; }
     if (table === 'account_secrets') {
       let f = null, op = 'sel', patch;

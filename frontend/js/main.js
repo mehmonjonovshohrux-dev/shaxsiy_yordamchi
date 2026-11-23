@@ -26,6 +26,8 @@ import './screens/help.js';
 import './screens/security-hub.js';
 import './screens/notif-settings.js';
 import './screens/installments.js';
+import './screens/devices.js';
+import { startDevicePing } from './services/devices.service.js';
 import './screens/account-menu.js';
 import { maybeAskSecurity } from './screens/security-onboarding.js';
 import { maybeDailyDigest } from './services/notify.service.js';
@@ -59,6 +61,7 @@ async function enterApp() {
   }
   renderTab();
   startUpdateWatch();
+  startDevicePing();
   mfaEnforced().then((v) => setState({ mfaEnforced: v })).catch(() => {});
   // Birinchi kirishda profilni to'ldirishni so'raymiz (bir marta)
   try {

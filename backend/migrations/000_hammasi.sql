@@ -1,6 +1,6 @@
 -- =====================================================================
 -- 000: HAMMASI BIR JOYDA. Supabase -> SQL Editor -> New query -> hammasini yopishtirib Run.
--- Qayta-qayta ishga tushirsa bo'ladi (idempotent). Tarkibi: 001, 002, 004, 006, 008, 007, 003 (tartib bilan).
+-- Qayta-qayta ishga tushirsa bo'ladi (idempotent). Tarkibi: 001, 002, 004, 006, 008, 009, 007, 003 (tartib bilan).
 -- DIQQAT: oxirgi qism (003) 2 bosqichli tasdiqlashni SERVERDA majburiy qiladi: kod (aal2) bo'lmasa ma'lumot ko'rinmaydi.
 -- =====================================================================
 
@@ -186,6 +186,47 @@ alter table public.accounts add column if not exists inst_weekly bigint not null
 alter table public.accounts drop constraint if exists accounts_inst_weekly;
 alter table public.accounts add  constraint accounts_inst_weekly check (inst_weekly >= 0 and inst_weekly < 100000000000);
 
+-- ################ 009_devices.sql ################
+-- =====================================================================
+-- 009: ulangan qurilmalar ro'yxati (+ ixtiyoriy GPS joylashuv). Idempotent.
+-- Har bir qurilma ilovani ochganda o'zining qatorini yangilaydi. Qatorlar faqat egasiga ko'rinadi (RLS).
+-- =====================================================================
+create table if not exists public.devices (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  device_id  text not null check (char_length(device_id) between 8 and 64),
+  name       text not null default '' check (char_length(name) <= 80),
+  first_seen timestamptz not null default now(),
+  last_seen  timestamptz not null default now(),
+  lat        double precision check (lat between -90 and 90),
+  lng        double precision check (lng between -180 and 180),
+  accuracy   real,
+  loc_at     timestamptz,
+  revoked    boolean not null default false,
+  unique (user_id, device_id)
+);
+
+alter table public.devices enable row level security;
+revoke all on public.devices from anon;
+grant select, insert, update, delete on public.devices to authenticated;
+
+drop policy if exists dev_select on public.devices;
+drop policy if exists dev_insert on public.devices;
+drop policy if exists dev_update on public.devices;
+drop policy if exists dev_delete on public.devices;
+create policy dev_select on public.devices for select to authenticated using (user_id = auth.uid());
+create policy dev_insert on public.devices for insert to authenticated with check (user_id = auth.uid());
+create policy dev_update on public.devices for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+create policy dev_delete on public.devices for delete to authenticated using (user_id = auth.uid());
+
+-- 2FA majburiy bo'lsa (003), qurilmalarga ham tegishli
+do $$ begin
+  if exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'accounts' and policyname = 'require_mfa') then
+    execute 'drop policy if exists "require_mfa_devices" on public.devices';
+    execute 'create policy "require_mfa_devices" on public.devices as restrictive to authenticated using ((select auth.jwt() ->> ''aal'') = ''aal2'')';
+  end if;
+end $$;
+
 -- ################ 007_reset_support.sql ################
 -- =====================================================================
 -- 007: 2FA'ni "push orqali nollash" uchun yordamchi (GitHub Action chaqiradi).
@@ -212,6 +253,7 @@ grant execute on function public.admin_revoke_sessions(uuid) to service_role;
 --                   drop policy "require_mfa_secrets" on public.account_secrets;
 --                   drop policy "require_mfa_files" on storage.objects;
 --                   drop policy "require_mfa_payments" on public.payments;
+--                   drop policy "require_mfa_devices" on public.devices;
 -- =====================================================================
 
 drop policy if exists "require_mfa" on public.accounts;
@@ -235,6 +277,14 @@ do $$ begin
   end if;
 end $$;
 
+-- 009 ishga tushirilgan bo'lsa (ulangan qurilmalar)
+do $$ begin
+  if to_regclass('public.devices') is not null then
+    execute 'drop policy if exists "require_mfa_devices" on public.devices';
+    execute 'create policy "require_mfa_devices" on public.devices as restrictive to authenticated using ((select auth.jwt() ->> ''aal'') = ''aal2'')';
+  end if;
+end $$;
+
 drop policy if exists "require_mfa_files" on storage.objects;
 create policy "require_mfa_files" on storage.objects
   as restrictive to authenticated
@@ -246,3 +296,4 @@ create or replace function public.mfa_enforced() returns boolean
   as $$ select exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'accounts' and policyname = 'require_mfa'); $$;
 revoke all on function public.mfa_enforced() from public, anon;
 grant execute on function public.mfa_enforced() to authenticated;
+

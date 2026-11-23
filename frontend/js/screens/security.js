@@ -8,6 +8,7 @@ import { openSheet, confirmDialog } from '../ui/sheet.js';
 import { toast } from '../ui/toast.js';
 import { closeTop } from '../core/router.js';
 import { pinPadHtml, mountPinPad } from '../ui/pinpad.js';
+import { requirePin } from '../ui/pin-gate.js';
 import { passwordFieldsHtml, mountPasswordFields } from '../ui/password-fields.js';
 import * as lock from '../services/lock.service.js';
 import * as auth from '../services/auth.service.js';
@@ -75,11 +76,18 @@ export async function toggleBio(on) {
 
 // ---------- Parolni almashtirish ----------
 let verifyPw = () => ({ ok: false });
-export function openChangePassword() {
+export async function openChangePassword() {
+  // Himoya: PIN (yoqilgan bo'lsa) + Authenticator'dagi hozirgi kod. Faqat email va parolni bilgan odam o'zgartira olmaydi.
+  if (!(await requirePin('Parolni almashtirish uchun PIN'))) return;
   const ctl = openSheet({
     title: "Parolni almashtirish",
     size: 'md',
-    html: `<form data-form="change-pw" novalidate>${passwordFieldsHtml()}<p class="form-error" role="alert" hidden></p><button class="btn block" type="submit" disabled>Parolni saqlash</button></form>`,
+    html: `<form data-form="change-pw" novalidate>
+      <p class="tip info"><span class="tip-ic">${icon('info', 18)}</span><span class="tip-tx">Xavfsizlik uchun Authenticator ilovasidagi hozirgi 6 xonali kod so'raladi.</span></p>
+      <label class="field"><span>Authenticator kodi</span><input class="plain" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" data-input="digits" placeholder="••••••"></label>
+      ${passwordFieldsHtml()}
+      <p class="form-error" role="alert" hidden></p>
+      <button class="btn block" type="submit" disabled>Parolni saqlash</button></form>`,
   });
   verifyPw = mountPasswordFields(ctl.body.querySelector('form'), () => getState().user.email);
 }
@@ -88,14 +96,23 @@ registerForms({
   'change-pw': async (form, fd) => {
     const v = verifyPw();
     if (!v.ok) return showFormError(form, v.message);
-    setBusy(form, true, 'Saqlanmoqda…');
+    const code = String(fd.get('code') || '').replace(/\D/g, '');
+    if (code.length !== 6) return showFormError(form, 'Authenticator ilovasidagi 6 xonali kodni kiriting');
+    setBusy(form, true, 'Tekshirilmoqda…');
+    const factor = await auth.mfaFactor();
+    const chk = factor ? await auth.mfaVerifyCode(factor.id, code) : { error: { message: 'no factor' } };
+    if (chk.error) {
+      setBusy(form, false);
+      return showFormError(form, "Kod noto'g'ri. Authenticator ilovasidagi hozirgi kodni kiriting");
+    }
     const { error } = await auth.setNewPassword(String(fd.get('password')));
     if (error) {
       setBusy(form, false);
       return showFormError(form, auth.humanizeAuthError(error));
     }
+    auth.signOutOthers().catch(() => {}); // boshqa qurilmalarda eski sessiyalar tugaydi
     closeTop();
-    toast('Parol yangilandi ✅');
+    toast("Parol yangilandi. Boshqa qurilmalardan chiqarildi ✅");
   },
   'mfa-enable': async (form, fd) => {
     const code = String(fd.get('code')).replace(/\D/g, '');
