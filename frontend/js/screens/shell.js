@@ -48,7 +48,7 @@ export function mountShell() {
 
 export function currentNotes() {
   const st = getState();
-  return buildNotes({ accounts: st.accounts, update: st.update, profileIncomplete: !getProfile().complete });
+  return buildNotes({ accounts: st.accounts, payments: st.payments, mfaEnforced: st.mfaEnforced, update: st.update, profileIncomplete: !getProfile().complete });
 }
 
 let lastSig = '';

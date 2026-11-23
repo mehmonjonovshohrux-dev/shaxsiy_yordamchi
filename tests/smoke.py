@@ -22,7 +22,13 @@ with sync_playwright() as p:
     pg.fill('input[type=password]', 'Old#Passw0rd1'); pg.click('button[type=submit]')
     step('2FA majburiy: parol qayta so\'raladi')
     pg.wait_for_selector('form[data-form=mfa-setup-pw]'); pg.fill('input[name=password]','wrong'); pg.click('form[data-form=mfa-setup-pw] button[type=submit]'); pg.wait_for_selector('.form-error:not([hidden])')
-    pg.fill('input[name=password]','Old#Passw0rd1'); pg.click('form[data-form=mfa-setup-pw] button[type=submit]'); pg.wait_for_selector('.qr'); pg.screenshot(path=f'{shots}/2-mfa-setup.png')
+    pg.fill('input[name=password]','Old#Passw0rd1'); pg.click('form[data-form=mfa-setup-pw] button[type=submit]'); pg.wait_for_selector('form[data-form=mfa-setup-newpw]')
+    step('yangi kuchli parol majburiy')
+    assert pg.is_disabled('form[data-form=mfa-setup-newpw] button[type=submit]'), 'bo\'sh parol bilan davom etib bo\'lmasligi kerak'
+    pg.fill('input[name=password]','weakpass'); pg.fill('input[name=confirm]','weakpass'); assert pg.is_disabled('form[data-form=mfa-setup-newpw] button[type=submit]'), 'zaif parol qabul qilinmasligi kerak'
+    pg.fill('input[name=password]','N3w#Strong-Pass42'); pg.fill('input[name=confirm]','N3w#Strong-Pass42'); pg.screenshot(path=f'{shots}/2b-newpw.png')
+    pg.click('form[data-form=mfa-setup-newpw] button[type=submit]'); pg.wait_for_selector('.qr'); pg.screenshot(path=f'{shots}/2-mfa-setup.png')
+    assert pg.evaluate("window.__mock.pw")=='N3w#Strong-Pass42','parol yangilanmadi'
     assert pg.query_selector('.shell') is None
     pg.fill('input[name=code]','111111'); pg.click('form[data-form=mfa-setup-code] button[type=submit]'); pg.wait_for_timeout(600); assert pg.query_selector('.shell') is None
     pg.fill('input[name=code]','123456'); pg.click('form[data-form=mfa-setup-code] button[type=submit]')

@@ -170,3 +170,30 @@ test('versiya: config.js va version.json bir xil', () => {
   const j = JSON.parse(readFileSync(new URL('../frontend/version.json', import.meta.url), 'utf8')).version;
   assert.equal(cfg, j);
 });
+
+// ---- muddatli to'lov ----
+import * as inst from '../frontend/js/logic/installments.js';
+test('muddatli: jadval teng bo\'linadi, oxirgi qism tugash sanasida', () => {
+  const s = inst.schedule({ start: '2026-01-01', end: '2026-01-31', parts: 3, total: 1000 });
+  assert.equal(s.length, 3);
+  assert.equal(s.reduce((x, p) => x + p.amount, 0), 1000);
+  assert.equal(s[2].due, '2026-01-31');
+  assert.deepEqual(s.map((p) => p.due), ['2026-01-11', '2026-01-21', '2026-01-31']);
+});
+test('muddatli: to\'lovlar eng eski qismdan taqsimlanadi, muddati o\'tganlar aniqlanadi', () => {
+  const acc = { id: 'a', status: 'sold', inst_on: true, sold_price: 900, sold_at: '2026-01-01', inst_start: '2026-01-01', inst_end: '2026-03-01', inst_parts: 3 };
+  const pay = [{ account_id: 'a', amount: 450, paid_at: '2026-01-05' }];
+  const st = inst.status(acc, pay, '2026-02-15');
+  assert.equal(st.paid, 450);
+  assert.equal(st.left, 450);
+  assert.equal(st.parts[0].state, 'paid');
+  assert.equal(st.parts[1].state, 'overdue');
+  assert.equal(st.overdueSum, 150);
+  assert.equal(st.next.n, 2);
+  assert.equal(st.pct, 50);
+});
+test('muddatli: kalendar to\'ri 7 ga bo\'linadi', () => {
+  const g = inst.monthGrid(2026, 10);
+  assert.equal(g.length % 7, 0);
+  assert.equal(g.filter((d) => d.inMonth).length, 30);
+});

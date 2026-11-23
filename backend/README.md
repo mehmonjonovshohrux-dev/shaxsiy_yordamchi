@@ -8,10 +8,13 @@ uchun front-end buzilsa ham begona ma'lumotga kira olmaydi.
 | `migrations/001_accounts.sql` | Akkauntlar jadvali, cheklovlar, faqat egasi ko'radi (RLS) |
 | `migrations/002_storage.sql` | Rasmlar uchun yopiq bucket, ixtiyoriy format, 25 MB gacha |
 | `migrations/004_account_secrets.sql` | Akkaunt login/parol jadvali (alohida, RLS bilan) |
-| `migrations/003_require_mfa.sql` | (ixtiyoriy) 2FA ni majburiy qilish |
+| `migrations/003_require_mfa.sql` | 2FA ni serverda majburiy qilish |
+| `migrations/006_installments.sql` | Muddatli to'lov (bo'lib to'lash) |
+| `migrations/007_reset_support.sql` | 2FA nollash uchun yordamchi (RESET-2FA.md) |
+| `migrations/000_hammasi.sql` | Yuqoridagilarning hammasi bir faylda |
 
 ## Bir martalik o'rnatish
-1. **SQL Editor**da `001`, `002`, keyin `004` ni Run qiling (har birini alohida query'da).
+1. **SQL Editor**da `migrations/000_hammasi.sql` ni Run qiling (001, 002, 004, 006, 007 va 003 hammasi ichida; qayta ishga tushirsa bo'ladi).
 2. **Authentication → Users**: hisobingiz bor (Add user → email + kuchli parol, "Auto Confirm" belgilangan).
 3. **Authentication → Sign In / Providers → Email**: *Allow new users to sign up* — **o'chiq**.
    Minimum password length **10**.

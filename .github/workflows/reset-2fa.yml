@@ -1,0 +1,28 @@
+name: Reset 2FA
+# Faqat `backend/reset-2fa.trigger` fayli o'zgarib, repoga push qilinganda ishlaydi (repoga yozish huquqi faqat egasida).
+on:
+  push:
+    paths:
+      - 'backend/reset-2fa.trigger'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reset-2fa
+  cancel-in-progress: false
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 2FA ni nollash
+        run: node backend/tools/reset-2fa.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OWNER_EMAIL: ${{ secrets.OWNER_EMAIL }}

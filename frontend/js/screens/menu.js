@@ -13,7 +13,7 @@ import { unreadCount } from '../logic/notifications.js';
 const GROUPS = [
   { title: 'Asosiy', items: [
     ['home', 'Bosh sahifa', 'home'], ['own', 'Shaxsiy akkauntlar', 'user'], ['partner', '50/50 akkauntlar', 'users'],
-    ['sold', 'Sotilganlar', 'archive'], ['report', 'Hisobot', 'chart'],
+    ['sold', 'Sotilganlar', 'archive'], ['inst', "Muddatli to'lovlar", 'calendar'], ['report', 'Hisobot', 'chart'],
   ] },
   { title: 'Boshqaruv', items: [
     ['notes', 'Bildirishnomalar', 'bell'], ['profile', 'Profil', 'user'], ['security', "Ma'lumotlar va xavfsizlik", 'shieldcheck'], ['settings', 'Sozlamalar', 'sliders'],
@@ -23,7 +23,7 @@ const GROUPS = [
   ] },
 ];
 const TABS = new Set(['home', 'own', 'partner', 'sold', 'report', 'settings']);
-const SHEET_ACT = { notes: 'open-notes', profile: 'open-profile', security: 'open-security', guide: 'open-guide', about: 'open-about', contact: 'open-contact' };
+const SHEET_ACT = { inst: 'open-inst-all', notes: 'open-notes', profile: 'open-profile', security: 'open-security', guide: 'open-guide', about: 'open-about', contact: 'open-contact' };
 
 export function openMenu() {
   const st = getState();

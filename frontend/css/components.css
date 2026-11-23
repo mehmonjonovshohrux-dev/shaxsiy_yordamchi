@@ -59,6 +59,8 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--b
 .check-row input { width: 22px; height: 22px; accent-color: var(--brand); }
 .code-input { text-align: center; font-size: 30px !important; letter-spacing: 10px; font-weight: 700; min-height: 64px !important; margin-bottom: 14px; padding-left: 14px !important; }
 .file-btn { cursor: pointer; margin-top: 4px; width: 100%; }
+.pick-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pick-row .file-btn { padding-inline: 8px; font-size: 14px; }
 
 /* ---------- Segment / tanlov ---------- */
 .seg { display: flex; background: #e9edf6; border-radius: 14px; padding: 4px; gap: 4px; margin-bottom: 12px; }
