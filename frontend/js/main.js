@@ -32,6 +32,7 @@ import { currentNotes } from './screens/shell.js';
 import { openProfile } from './screens/profile.js';
 import { getProfile } from './services/profile.service.js';
 import { startUpdateWatch } from './services/update.service.js';
+import { checkGate, watchGate } from './services/update-gate.js';
 import { openAccountForm } from './screens/account-form.js';
 
 async function afterAuth() {
@@ -88,6 +89,8 @@ function registerServiceWorker() {
 }
 
 async function boot() {
+  if (!(await checkGate())) return; // eski versiya: ilova yangilanmaguncha ishlamaydi
+  watchGate();
   initRouter({ getTab: () => getState().tab, goHome: () => setTab('home'), isLocked: () => getState().locked });
   registerServiceWorker();
 

@@ -48,3 +48,6 @@ Testlar: `node --test tests/logic.test.mjs`
 
 ## Yangi versiya chiqarish
 `frontend/js/config.js` dagi `VERSION` va `frontend/version.json` ni bir xil qilib oshiring (test tekshiradi), keyin push. Ochiq ilovalarda qo'ng'iroqcha yonida «Yangilash» chiqadi.
+
+## 2.3.1 — majburiy yangilanish mexanizmi (o'chirilgan holatda)
+`frontend/version.json` ga `"min": "x.y.z"` qo'shilsa, undan past versiyalar «Yangilash majburiy» oynasida to'xtaydi. Hozir `min` yo'q, shuning uchun hech kim bloklanmaydi.
