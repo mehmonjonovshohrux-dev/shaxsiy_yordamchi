@@ -44,7 +44,7 @@ export async function checkGate() {
     const r = await fetch(`version.json?t=${Date.now()}`, { cache: 'no-store' });
     if (r.ok) {
       const j = await r.json();
-      min = j.min || null;
+      min = j.min || j.version || null; // min yo'q bo'lsa, joriy reliz talab qilinadi
       try {
         min ? localStorage.setItem(KEY, min) : localStorage.removeItem(KEY);
       } catch {}
