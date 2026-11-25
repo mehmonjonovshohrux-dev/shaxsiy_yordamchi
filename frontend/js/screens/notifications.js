@@ -28,7 +28,6 @@ function html() {
       <div class="note-tx"><b>${esc(n.title)}</b><p>${esc(n.text)}</p>
         ${n.kind === 'update' ? `<button type="button" class="btn sm" data-act="apply-update">${icon('refresh', 16)} Yangilash</button>` : ''}
         ${n.kind === 'profile' ? '<button type="button" class="btn sm ghost" data-act="note-profile">Profilni ochish</button>' : ''}
-        ${n.act === 'open-devices' ? `<button type="button" class="btn sm ghost" data-act="note-devices">${esc(n.cta)}</button>` : ''}
         ${n.accId ? `<button type="button" class="btn sm ghost" data-act="note-open" data-id="${esc(n.accId)}">${esc(n.cta || 'Ochish')}</button>` : ''}
       </div>
     </article>`,
@@ -73,11 +72,6 @@ registerActions({
     const { closeTop } = await import('../core/router.js');
     closeTop();
     setTimeout(async () => (await import('./profile.js')).openProfile(), 260);
-  },
-  'note-devices': async () => {
-    const { closeTop } = await import('../core/router.js');
-    closeTop();
-    setTimeout(async () => (await import('./devices.js')).openDevices(), 280);
   },
   'note-open': async (el) => {
     const { closeTop } = await import('../core/router.js');

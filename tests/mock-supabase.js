@@ -1,39 +1,12 @@
 // Sinov uchun soxta supabase (xotirada ishlaydi)
 (function () {
-  const store = { payments: [], secrets: {}, accounts: JSON.parse(localStorage.getItem('__seed') || '[]'), user: localStorage.getItem('__user') ? { id: 'u1', email: 'a@b.uz' } : null, otp: '123456', pw: 'Old#Passw0rd1', n: 0, listeners: [], factor: localStorage.getItem('__mfa') ? { id: 'f1', factor_type: 'totp', status: 'verified' } : null, aal: (localStorage.getItem('__user') && localStorage.getItem('__mfa')) ? 'aal2' : 'aal1', enforced: false, others: 0 };
+  const store = { secrets: {}, accounts: JSON.parse(localStorage.getItem('__seed') || '[]'), user: localStorage.getItem('__user') ? { id: 'u1', email: 'a@b.uz' } : null, otp: '123456', pw: 'Old#Passw0rd1', n: 0, listeners: [], factor: localStorage.getItem('__mfa') ? { id: 'f1', factor_type: 'totp', status: 'verified' } : null, aal: (localStorage.getItem('__user') && localStorage.getItem('__mfa')) ? 'aal2' : 'aal1', enforced: false, others: 0 };
   window.__mock = store;
   const sess = () => (store.user ? { user: store.user, access_token: 't' } : null);
   const emit = (ev) => store.listeners.forEach((f) => f(ev, sess()));
   const ok = (data) => Promise.resolve({ data, error: null });
   const err = (message) => Promise.resolve({ data: null, error: { message } });
   function q(table) {
-    if (table === 'payments') {
-      let op = 'sel', patch, f = null;
-      const b = { select() { return b; }, order() { return b; }, single() { return b; }, eq(_, v) { f = v; return b; },
-        insert(p) { op = 'ins'; patch = p; return b; }, delete() { op = 'del'; return b; },
-        then(res, rej) {
-          if (store.noPayments) return err("relation \"public.payments\" does not exist").then(res, rej);
-          if (op === 'ins') { const r = { id: 'p' + ++store.n, user_id: 'u1', created_at: new Date().toISOString(), note: '', ...patch }; store.payments.push(r); return ok(r).then(res, rej); }
-          if (op === 'del') { store.payments = store.payments.filter((x) => x.id !== f); return ok(null).then(res, rej); }
-          return ok([...store.payments]).then(res, rej);
-        } };
-      return b;
-    }
-    if (table === 'devices') {
-      store.devices = store.devices || [];
-      let op = 'sel', patch, f = {}, one = false;
-      const b = { select() { return b; }, order() { return b; }, eq(k, v) { f[k] = v; return b; }, maybeSingle() { one = true; return b; },
-        upsert(p) { op = 'ups'; patch = p; return b; }, update(p) { op = 'upd'; patch = p; return b; }, delete() { op = 'del'; return b; },
-        then(res, rej) {
-          if (store.noDevices) return err('relation "public.devices" does not exist').then(res, rej);
-          const m = (d) => Object.entries(f).every(([k, v]) => d[k] === v);
-          if (op === 'ups') { let r = store.devices.find((d) => d.device_id === patch.device_id); if (r) Object.assign(r, patch); else { r = { id: 'dv' + ++store.n, first_seen: new Date().toISOString(), revoked: false, ...patch }; store.devices.push(r); } return ok(r).then(res, rej); }
-          if (op === 'upd') { store.devices.filter(m).forEach((d) => Object.assign(d, patch)); return ok(null).then(res, rej); }
-          if (op === 'del') { store.devices = store.devices.filter((d) => !m(d)); return ok(null).then(res, rej); }
-          const rows = store.devices.filter(m); return ok(one ? rows[0] || null : rows).then(res, rej);
-        } };
-      return b;
-    }
     if (table === 'push_subscriptions') { const b = { upsert() { return ok(null); }, delete() { return b; }, eq() { return b; }, then(res, rej) { return ok(null).then(res, rej); } }; return b; }
     if (table === 'account_secrets') {
       let f = null, op = 'sel', patch;

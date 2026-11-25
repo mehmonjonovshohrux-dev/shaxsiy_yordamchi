@@ -57,3 +57,4 @@ export async function mfaEnroll() {
   return sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: `AccSavdo ${Date.now()}` });
 }
 
+export const mfaUnenroll = (factorId) => sb.auth.mfa.unenroll({ factorId });

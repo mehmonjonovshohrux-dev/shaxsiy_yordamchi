@@ -17,7 +17,6 @@ import { renderTab } from './shell.js';
 import { openAccountForm } from './account-form.js';
 import { openSellForm } from './sell.js';
 import { openGallery } from './gallery.js';
-import { instCardHtml, applyBars } from './installments.js';
 
 function detailHtml(a) {
   const c = calc(a);
@@ -40,7 +39,6 @@ function detailHtml(a) {
     ${a.kind === 'partner' ? `<div class="kv"><span>Sherik ulushi${sold ? (a.partner_paid ? " · to'langan ✅" : " · to'lanmagan") : ''}</span><b>${som(c.partner)}</b></div>` : ''}
     ${a.notes ? `<div class="kv col"><span>Izoh</span><p class="notes">${esc(a.notes)}</p></div>` : ''}
   </div>
-  <div id="inst-card-host" data-id="${esc(a.id)}">${instCardHtml(a)}</div>
   <div class="card secret-card" id="secret-card">
     <div class="card-title">${icon('lock', 18)} Kirish ma'lumotlari</div>
     <p class="muted small">Login va parol faqat siz «Ko'rsatish»ni bosganingizda ochiladi.</p>
@@ -60,7 +58,6 @@ export function openAccount(id) {
   if (!a) return;
   const ctl = openSheet({ title: a.title, size: 'full', html: detailHtml(a), onClose: () => { clearTimeout(secretTimer); secretCache = null; } });
   hydrate(ctl.body);
-  applyBars(ctl.body);
 }
 
 let secretTimer = null;

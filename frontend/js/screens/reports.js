@@ -7,10 +7,6 @@ import { icon } from '../ui/icons.js';
 import { barChart } from '../ui/chart.js';
 import { toast } from '../ui/toast.js';
 import { summarize, monthlySeries, profitByGame, accountsToCsv } from '../logic/finance.js';
-import { buildReport, periodLabel } from '../logic/report-data.js';
-import { buildDocx } from '../ui/docx.js';
-import { printReport } from '../ui/report-print.js';
-import { getProfile } from '../services/profile.service.js';
 import { registerTab, renderTab } from './shell.js';
 import { openSettle } from './partner-settle.js';
 
@@ -54,20 +50,16 @@ function view(st) {
       ? `<h2 class="sec-title">O'yinlar bo'yicha foyda</h2><div class="card list">${games.map((g) => `<div class="kv"><span>${esc(g.game)} <small class="muted">· ${g.count} ta</small></span><b class="${g.profit < 0 ? 'neg' : 'pos'}">${signedSom(g.profit)}</b></div>`).join('')}</div>`
       : ''
   }
-  <h2 class="sec-title">Hisobotni yuklab olish</h2>
-  <div class="card">
-    <p class="muted small">Tanlangan davr (<b>${esc(periodLabel(st.period))}</b>) bo'yicha tayyor hisobot: jadvallar, foyda, sotilganlar, muddatli qarzlar.</p>
-    <div class="btn-grid">
-      <button type="button" class="btn span2" data-act="export-docx">${icon('file', 18)} Word (.docx)</button>
-      <button type="button" class="btn ghost" data-act="export-pdf">${icon('download', 18)} PDF</button>
-      <button type="button" class="btn ghost" data-act="export-csv">${icon('download', 18)} Excel (CSV)</button>
-    </div>
+  <h2 class="sec-title">Ma'lumotlarni yuklab olish</h2>
+  <div class="btn-grid">
+    <button type="button" class="btn ghost" data-act="export-csv">${icon('download', 18)} Excel (CSV)</button>
+    <button type="button" class="btn ghost" data-act="export-json">${icon('download', 18)} Zaxira (JSON)</button>
   </div>
   <p class="muted xs">Taxminiy ko'rsatkichlar faqat hozir sotuvdagi akkauntlar bo'yicha (davrga bog'liq emas).</p>`;
 }
 
-export function download(name, data, type) {
-  const blob = new Blob([data], { type });
+function download(name, text, type) {
+  const blob = new Blob([text], { type });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = name;
@@ -91,18 +83,5 @@ registerActions({
     const data = getState().accounts.map(({ user_id, ...r }) => r);
     download(`accsavdo-zaxira-${todayISO()}.json`, JSON.stringify(data, null, 2), 'application/json');
     toast('Zaxira yuklab olindi');
-  },
-  'export-docx': () => {
-    const st = getState();
-    const p = getProfile();
-    const r = buildReport({ accounts: st.accounts, payments: st.payments, period: st.period, owner: [p.first, p.last].filter(Boolean).join(' ') });
-    download(`accsavdo-hisobot-${todayISO()}.docx`, buildDocx(r), 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    toast('Word hisobot yuklab olindi');
-  },
-  'export-pdf': () => {
-    const st = getState();
-    const p = getProfile();
-    printReport(buildReport({ accounts: st.accounts, payments: st.payments, period: st.period, owner: [p.first, p.last].filter(Boolean).join(' ') }));
-    toast('Chop etish oynasida «PDF sifatida saqlash» ni tanlang');
   },
 });
