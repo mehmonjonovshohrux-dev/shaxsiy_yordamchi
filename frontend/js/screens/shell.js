@@ -3,6 +3,7 @@ import { $ } from '../core/dom.js';
 import { getState, setState, subscribe } from '../core/store.js';
 import { getProfile, hydrateAvatars } from '../services/profile.service.js';
 import { buildNotes, unreadCount } from '../logic/notifications.js';
+import { deviceId } from '../services/devices.service.js';
 import { registerActions } from '../core/actions.js';
 import { icon } from '../ui/icons.js';
 import { hydrate } from '../services/images.service.js';
@@ -48,7 +49,7 @@ export function mountShell() {
 
 export function currentNotes() {
   const st = getState();
-  return buildNotes({ accounts: st.accounts, update: st.update, profileIncomplete: !getProfile().complete });
+  return buildNotes({ accounts: st.accounts, payments: st.payments, mfaEnforced: st.mfaEnforced, update: st.update, profileIncomplete: !getProfile().complete, devices: st.devices, deviceId: deviceId(), geoStatus: st.geoStatus });
 }
 
 let lastSig = '';

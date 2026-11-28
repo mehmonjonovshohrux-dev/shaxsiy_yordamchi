@@ -60,14 +60,16 @@ function html() {
   <div class="card list">
     <div id="mfa-row">${mfaRow()}</div>
     ${row({ ic: 'key', title: 'Parolni almashtirish', sub: 'Yangi kuchli parol', act: 'sec-password', right: icon('right', 18) })}
+    ${row({ ic: 'phone', title: 'Ulangan qurilmalar', sub: 'Qaysi qurilmalar kirgan, joylashuvi, chiqarish', act: 'open-devices', right: icon('right', 18) })}
     ${row({ ic: 'logout', title: 'Boshqa qurilmalardan chiqish', sub: 'Telefon yo\'qolsa yoki begona qurilmada kirgan bo\'lsangiz', act: 'sec-signout-others', right: icon('right', 18) })}
   </div>
 
   <h2 class="sec-title">Ma'lumotlar</h2>
   <div class="card list">
     ${row({ ic: 'download', title: 'Excel (CSV) yuklab olish', sub: "Login va parollar fayilga kirmaydi", act: 'export-csv', right: icon('right', 18) })}
-    ${row({ ic: 'database', title: 'Zaxira nusxa (JSON)', sub: 'Barcha akkauntlar, rasmlarsiz', act: 'export-json', right: icon('right', 18) })}
+    ${row({ ic: 'database', title: 'Zaxira nusxa (JSON)', sub: "Ma'lumot yo'qolsa qaytarish uchun to'liq nusxa (rasmlarsiz). Hisobot uchun emas", act: 'export-json', right: icon('right', 18) })}
   </div>
+  <details class="manual"><summary>Zaxira nusxa (JSON) nima?</summary><p class="muted small">Barcha akkauntlaringiz (narxlar, sanalar, muddatli to'lov rejalari) bitta faylga yoziladi. U Word yoki Excel emas, odam o'qishi uchun emas: bu «sug'urta». Baza o'chib ketsa yoki ilova boshqa joyga ko'chirilsa, shu fayldan ma'lumotni qayta tiklash mumkin. Faylni telefondan tashqarida (kompyuter, Telegram «Saqlangan xabarlar») saqlang. Kirish ma'lumotlari (login/parol) va rasmlar unga kirmaydi. Chiroyli hisobot kerak bo'lsa, «Hisobot» bo'limidan Word yoki PDF yuklang.</p></details>
   <p class="muted xs">PIN va barmoq izi shu qurilmani qulflaydi. Hisobni asosiy himoyalovchi narsa: kuchli parol, 2 bosqichli tasdiqlash va bazadagi qoidalar.</p>`;
 }
 

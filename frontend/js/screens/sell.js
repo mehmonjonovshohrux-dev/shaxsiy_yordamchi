@@ -1,6 +1,6 @@
 // "Sotildi" oynasi: haqiqiy narx taxminiyning o'rniga yoziladi, foyda darhol ko'rinadi
 import { esc, setBusy, showFormError } from '../core/dom.js';
-import { findAccount } from '../core/store.js';
+import { findAccount, getState } from '../core/store.js';
 import { num, group, todayISO, signedSom, som } from '../core/format.js';
 import { registerForms, registerInputs } from '../core/actions.js';
 import { openSheet } from '../ui/sheet.js';
@@ -9,6 +9,10 @@ import { dropOverlays } from '../core/router.js';
 import { calc } from '../logic/finance.js';
 import { markSold, unsell } from '../services/accounts.service.js';
 import { renderTab } from './shell.js';
+import { addDays } from '../logic/installments.js';
+import { instFieldsHtml, mountInstFields, readInst } from '../ui/inst-fields.js';
+import { addPayment } from '../services/payments.service.js';
+import { dateUz } from '../core/format.js';
 
 export function openSellForm(id) {
   const a = findAccount(id);
@@ -27,28 +31,56 @@ export function openSellForm(id) {
         <label class="field"><span>Sotilgan sana</span><input class="plain" name="sold_at" type="date" required value="${editing && a.sold_at ? String(a.sold_at).slice(0, 10) : todayISO()}" max="${todayISO()}"></label>
         <label class="field"><span>Xaridor (ixtiyoriy)</span><input class="plain" name="buyer" maxlength="80" value="${esc(a.buyer || '')}" placeholder="Ism yoki @username" autocomplete="off"></label>
       </div>
+      ${instBlock(a, editing)}
       ${a.kind === 'partner' ? `<label class="check-row"><input type="checkbox" name="paid" ${a.partner_paid ? 'checked' : ''}><span>Sherik ulushi to'lab bo'lindi</span></label>` : ''}
       <p class="form-error" role="alert" hidden></p>
       <button class="btn block" type="submit">Saqlash</button>
     </form>`,
   });
-  updatePreview(document.querySelector('form[data-form=sell]'));
+  const form = document.querySelector('form[data-form=sell]');
+  updatePreview(form);
+  const wrap = form.querySelector('#inst-wrap');
+  if (wrap) {
+    const refresh = mountInstFields(form, () => num(form.elements.sold_price.value));
+    form.addEventListener('change', (e) => {
+      if (e.target.name !== 'inst') return;
+      wrap.hidden = !e.target.checked;
+      refresh();
+    });
+  }
 }
 
 function updatePreview(form) {
-  if (!form) return;
+  const el = form?.querySelector('#sell-preview');
+  if (!el) return;
   const price = num(form.elements.sold_price.value);
-  const c = calc({ kind: form.dataset.kind, status: 'sold', buy_price: Number(form.dataset.buy), sold_price: price });
-  const el = document.getElementById('sell-preview');
   if (!price) return void (el.textContent = '');
-  el.innerHTML = `Foydangiz${form.dataset.kind === 'partner' ? ' (50%)' : ''}: <b class="${c.my < 0 ? 'neg' : 'pos'}">${signedSom(c.my)}</b>${form.dataset.kind === 'partner' ? ` · sherikka: <b>${som(c.partner)}</b>` : ''}`;
+  const kind = form.dataset.kind;
+  const c = calc({ status: 'sold', sold_price: price, buy_price: Number(form.dataset.buy) || 0, kind });
+  el.innerHTML = `Foyda${kind === 'partner' ? ' (sizga)' : ''}: <b class="${c.my < 0 ? 'neg' : 'pos'}">${signedSom(c.my)}</b>${kind === 'partner' ? ` · sherikka: ${som(c.partner)}` : ''}`;
+}
+
+function instBlock(a, editing) {
+  if (!getState().instReady) {
+    return `<p class="muted xs">Muddatli to'lov (bo'lib to'lash) yoqilmagan: Supabase'da <b>006_installments.sql</b> (yoki 000_hammasi.sql) ni ishga tushiring.</p>`;
+  }
+  const on = editing && a.inst_on === true;
+  const sold = a.sold_at ? String(a.sold_at).slice(0, 10) : todayISO();
+  const start = on && a.inst_start ? String(a.inst_start).slice(0, 10) : sold;
+  const end = on && a.inst_end ? String(a.inst_end).slice(0, 10) : addDays(sold, 30);
+  return `
+  <label class="check-row"><input type="checkbox" name="inst" ${on ? 'checked' : ''}><span>Muddatli to'lov (bo'lib to'lash)</span></label>
+  <div id="inst-wrap" class="inst-wrap" ${on ? '' : 'hidden'}>
+    ${instFieldsHtml({ start, end, parts: on ? a.inst_parts : 3, weekly: on ? Number(a.inst_weekly) || 0 : 0, withFirst: !editing })}
+  </div>`;
 }
 
 registerInputs({
   'sell-price': (el) => {
     const d = el.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, 12);
     el.value = d ? group(Number(d), ' ') : '';
-    updatePreview(el.closest('form'));
+    const f = el.closest('form');
+    if (f?.elements.sold_price) updatePreview(f);
   },
 });
 
@@ -58,11 +90,20 @@ registerForms({
     const date = String(fd.get('sold_at'));
     if (!price) return showFormError(form, 'Sotilgan narxni kiriting');
     if (!date) return showFormError(form, 'Sanani tanlang');
+    let inst = getState().instReady ? false : null;
+    let first = 0;
+    if (form.elements.inst?.checked) {
+      const r = readInst(form, fd, price);
+      if (r.error) return showFormError(form, r.error);
+      inst = r.inst;
+      first = r.first;
+    }
     showFormError(form, '');
     setBusy(form, true, 'Saqlanmoqda…');
     try {
       const id = form.dataset.id;
-      const saved = await markSold(id, { price, date, buyer: String(fd.get('buyer') || '').trim(), partnerPaid: !!fd.get('paid') });
+      const saved = await markSold(id, { price, date, buyer: String(fd.get('buyer') || '').trim(), partnerPaid: !!fd.get('paid'), inst });
+      if (inst && first > 0) await addPayment(id, { amount: first, date, note: 'Boshlang\'ich to\'lov' });
       dropOverlays();
       renderTab();
       if (saved?._buyerSkipped) toast("Sotuv saqlandi, lekin xaridor yozilmadi: Supabase'da 001_accounts.sql ni qayta ishga tushiring", { type: 'error' });

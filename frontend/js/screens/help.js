@@ -16,6 +16,7 @@ const GUIDE = [
   ['Sotilganni tahrirlash', "«Sotilgan» bo'limidan akkauntni oching: sotilgan narx, sana va xaridorni o'zgartirish yoki akkauntni qayta sotuvga qaytarish mumkin."],
   ['Hisobot', "Hisobot bo'limida oy, 3 oy, yil va hammasi bo'yicha foyda ko'rinadi: shaxsiy va 50/50 alohida. Excel (CSV) va zaxira nusxani ham shu yerdan yuklab olasiz."],
   ['Sherik bilan hisob-kitob', "Bosh sahifadagi «Sherikka to'lanadigan» katagi sherikka berish kerak summani ko'rsatadi. To'langach, akkaunt ichida «Sherikka to'landi» ni belgilang."],
+  ["Muddatli to'lov", "Akkauntni sotayotganda «Muddatli to'lov» ni yoqing: boshlanish va tugash sanasi, qismlar soni va hozir olingan summani kiriting. Keyin akkaunt oynasida to'lovlarni qo'shing, kalendarda ko'ring, tugash sanasini o'zgartiring. Menyu → Muddatli to'lovlar: barcha qarzlar bir joyda."],
   ['Bildirishnomalar', "Yuqoridagi qo'ng'iroqcha kunlik hisobot, eslatma va maslahatlarni ko'rsatadi. Sozlamalar → Bildirishnomalar'da telefon ekraniga xabar kelishini yoqishingiz mumkin. Yangi versiya chiqsa, shu yerda «Yangilash» tugmasi paydo bo'ladi."],
   ['Xavfsizlik', "Menyudan «Ma'lumotlar va xavfsizlik»ni oching: PIN-kod, barmoq izi/yuz bilan ochish, 2 bosqichli tasdiqlash va parolni almashtirish shu yerda. Akkauntlarning login va parollari faqat siz «Ko'rsatish»ni bosganingizda ochiladi."],
   ['Ilovani o\'rnatish', "Telefonda Chrome (yoki iPhone'da Safari) orqali oching va «O'rnatish»ni bosing. Shundan so'ng ilova bosh ekranda turadi va har safar kirish so'ramaydi."],
@@ -24,6 +25,10 @@ const GUIDE = [
 ];
 
 const CHANGELOG = [
+  ['2.7.0', ["Majburiy yangilanish: eski versiya yangilanmaguncha ishlamaydi"]],
+  ['2.6.0', ["Ulangan qurilmalar: ro'yxat, oxirgi faollik, har kirishda avtomatik GPS joylashuv, chiqarish", "Parolni almashtirish endi PIN va Authenticator kodini talab qiladi", "Hisobot: Word (.docx) va PDF yuklab olish", "Profil oynasi yon tomonga surilmaydi"]],
+  ['2.5.0', ["Muddatli to'lov: haftasiga summa (qo'shilib boradi) yoki teng qismlar", "Kalendarda boshlanish va tugash sanasini bosing: oraliq boshqa rangda", "Hozirgacha to'planishi kerak bo'lgan summa ko'rinadi"]],
+  ['2.4.0', ["Muddatli to'lov: qismlar, kalendar, to'lovlar tarixi, tugash sanasini o'zgartirish", "Rasm: Galereya, Kamera va Fayl tugmalari", "2FA qayta sozlashda yangi kuchli parol majburiy", "2FA'ni faqat GitHub push orqali nollash mumkin", "Kirish ma'lumotlari xatosi sababi aniq ko'rsatiladi"]],
   ['2.3.0', ["2 bosqichli tasdiqlash majburiy: kirishda parol qayta so'raladi va bir martalik kod talab etiladi", "Akkaunt formasidan «O'yin» va «Izoh» olib tashlandi", "Sotuvni saqlash tuzatildi", "Rasm har qanday formatda qabul qilinadi"]],
   ['2.2.0', ["Bosh sahifa sarlavhasi yangi dizaynda", "Sozlama pastki panelda", "Avatar bosilsa profil menyusi", "Bildirishnoma sozlamalari alohida; telefon ekraniga xabar", "Ilova ochilishida PIN/2FA yoqishni so'raydi", "Himoya darajasi va boshqa qurilmalardan chiqish", "Parolni ko'rishdan oldin PIN"]],
   ['2.1.0', ["Profil: rasm, ism, familiya, telefon", "Bildirishnomalar va yangilash tugmasi", "Chap menyu va yangi bo'limlar", "Sotilganlar alohida bo'lim", "Akkaunt kirish ma'lumotlari (login/parol)", "Yo'riqnoma va admin bilan aloqa"]],

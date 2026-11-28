@@ -6,7 +6,7 @@ import { getState, setState } from './core/store.js';
 import { initRouter, overlayCount } from './core/router.js';
 import { toast } from './ui/toast.js';
 import { onInstallChange } from './services/install.service.js';
-import { getSession, onAuthChange, mfaNeeded, mfaFactor } from './services/auth.service.js';
+import { getSession, onAuthChange, mfaNeeded, mfaFactor, mfaEnforced } from './services/auth.service.js';
 import { loadAccounts } from './services/accounts.service.js';
 import * as lock from './services/lock.service.js';
 import { startAuth } from './screens/auth/index.js';
@@ -25,6 +25,9 @@ import './screens/contact.js';
 import './screens/help.js';
 import './screens/security-hub.js';
 import './screens/notif-settings.js';
+import './screens/installments.js';
+import './screens/devices.js';
+import { startDevicePing } from './services/devices.service.js';
 import './screens/account-menu.js';
 import { maybeAskSecurity } from './screens/security-onboarding.js';
 import { maybeDailyDigest } from './services/notify.service.js';
@@ -59,6 +62,8 @@ async function enterApp() {
   }
   renderTab();
   startUpdateWatch();
+  startDevicePing();
+  mfaEnforced().then((v) => setState({ mfaEnforced: v })).catch(() => {});
   // Birinchi kirishda profilni to'ldirishni so'raymiz (bir marta)
   try {
     if (!getProfile().complete && !localStorage.getItem('accsavdo.profilePrompted')) {

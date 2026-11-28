@@ -2,6 +2,12 @@
 const state = {
   user: null,
   accounts: [],
+  payments: [], // muddatli to'lovlar
+  weeklyReady: true, // false: bazada 008 ishga tushirilmagan (haftalik rejim yashiriladi)
+  devices: [],
+  geoStatus: 'unknown', // ok | denied | unsupported | error
+  devicesReady: true, // false: bazada 009 ishga tushirilmagan
+  instReady: true, // false: bazada 006 ishga tushirilmagan
   loaded: false,
   loadError: false,
   tab: 'home',
@@ -10,6 +16,7 @@ const state = {
   period: 'month', // month | prev | 3m | year | all
   online: typeof navigator === 'undefined' ? true : navigator.onLine,
   locked: false,
+  mfaEnforced: null, // serverda 2FA majburiymi (null: hali bilinmaydi)
   update: null, // { version } — yangi versiya bor bo'lsa
 };
 

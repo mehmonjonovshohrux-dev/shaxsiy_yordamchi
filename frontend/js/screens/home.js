@@ -1,6 +1,7 @@
 // Bosh sahifa: oylik foyda, ko'rsatkichlar, maslahatlar, grafik, so'nggi sotuvlar
 import { esc } from '../core/dom.js';
-import { som, signedSom, dateUz, daysSince } from '../core/format.js';
+import { som, signedSom, dateUz, daysSince, todayISO } from '../core/format.js';
+import { totals as instTotals } from '../logic/installments.js';
 import { CONFIG } from '../config.js';
 import { makeGreeting } from '../logic/greetings.js';
 import { getProfile } from '../services/profile.service.js';
@@ -58,6 +59,7 @@ function view(st) {
   const cur = summarize(st.accounts, 'month', now);
   const prev = summarize(st.accounts, 'prev', now);
   const up = unpaidPartner(st.accounts);
+  const instTot = instTotals(st.accounts, st.payments, todayISO());
   const all = summarize(st.accounts, 'all', now);
 
   if (st.loaded && st.accounts.length === 0) {
@@ -85,6 +87,7 @@ function view(st) {
     <div class="stat"><span class="l">Sotuvda</span><strong>${all.total.activeCount} ta</strong></div>
     <div class="stat"><span class="l">Kutilayotgan foyda</span><strong>${signedSom(all.total.estProfit)}</strong></div>
     <div class="stat"><span class="l">Band sarmoya</span><strong>${som(all.total.tiedCapital)}</strong></div>
+    ${instTot.count ? `<button type="button" class="stat ${instTot.overdue ? 'warn' : ''} as-btn" data-act="open-inst-all"><span class="l">Muddatli qarz (olinadi)</span><strong>${som(instTot.left)}</strong></button>` : ''}
     <button type="button" class="stat ${up.sum > 0 ? 'warn' : ''} as-btn" data-act="open-settle"><span class="l">Sherikka to'lanadigan</span><strong>${som(up.sum)}</strong></button>
   </div>
 

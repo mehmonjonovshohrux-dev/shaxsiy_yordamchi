@@ -11,7 +11,7 @@ import { closeTop, dropOverlays } from '../core/router.js';
 import { calc } from '../logic/finance.js';
 import { prepare, upload, removeFiles, thumbPath, hydrate } from '../services/images.service.js';
 import { createAccount, updateAccount } from '../services/accounts.service.js';
-import { loadSecret, saveSecret } from '../services/secrets.service.js';
+import { loadSecret, saveSecret, secretHint } from '../services/secrets.service.js';
 import { renderTab } from './shell.js';
 
 // Bitta ochiq forma uchun vaqtinchalik holat
@@ -107,9 +107,17 @@ export function openAccountForm(id = null, kind = null) {
 
       <div class="field-head"><span>Rasmlar</span><span class="muted small" id="img-count"></span></div>
       <div class="thumbs" id="img-thumbs"></div>
-      <label class="btn ghost file-btn">${icon('camera', 18)} Rasm qo'shish
-        <input type="file" id="file-input" accept="image/*,.heic,.heif,.avif,.jxl,.dng,.raw,.cr2,.nef,.arw,.svg,.ico,.tif,.tiff,.bmp,.jp2,.psd" multiple hidden data-change="pick-images">
-      </label>
+      <div class="pick-row">
+        <label class="btn ghost file-btn">${icon('image', 18)} Galereya
+          <input type="file" accept="image/*" multiple hidden data-change="pick-images">
+        </label>
+        <label class="btn ghost file-btn">${icon('camera', 18)} Kamera
+          <input type="file" accept="image/*" capture="environment" hidden data-change="pick-images">
+        </label>
+        <label class="btn ghost file-btn">${icon('folder', 18)} Fayl
+          <input type="file" accept="image/*,.heic,.heif,.avif,.jxl,.dng,.raw,.cr2,.nef,.arw,.svg,.ico,.tif,.tiff,.bmp,.jp2,.psd" multiple hidden data-change="pick-images">
+        </label>
+      </div>
       <p class="muted xs">Har qanday rasm formati qabul qilinadi. Asl sifat saqlanadi (juda katta rasm ${CONFIG.DOWNSCALE_OVER_MB} MB dan oshsa, sifati deyarli yo'qolmasdan kichraytiriladi).</p>
 
       <progress id="up-progress" max="100" value="0" hidden></progress>
@@ -269,7 +277,7 @@ registerForms({
           await saveSecret(id, { login: String(fd.get('s_login') || '').trim(), password: String(fd.get('s_password') || ''), extra: String(fd.get('s_extra') || '').trim() });
         } catch (e) {
           console.error(e);
-          toast("Akkaunt saqlandi, lekin kirish ma'lumotlari saqlanmadi. Qayta urinib ko'ring.", { type: 'error' });
+          toast(`Akkaunt saqlandi, lekin kirish ma'lumotlari saqlanmadi. ${secretHint(e)}`, { type: 'error', ms: 9000 });
         }
       }
       if (fs.removed.length) removeFiles(fs.removed).catch(() => {});

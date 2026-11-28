@@ -3,13 +3,17 @@
 import { esc, setBusy, showFormError } from '../../core/dom.js';
 import { registerForms, registerActions } from '../../core/actions.js';
 import { getSession, signIn, signOut, mfaEnroll, mfaVerifyCode, humanizeAuthError } from '../../services/auth.service.js';
+import { setNewPassword } from '../../services/auth.service.js';
+import { passwordFieldsHtml, mountPasswordFields } from '../../ui/password-fields.js';
 import { authLayout, registerStep, replaceStep, finish, flowData } from './flow.js';
+
+let verifyNew = () => ({ ok: false });
 
 registerStep('mfa-setup', {
   view: () =>
     authLayout({
       title: 'Hisobni himoyalang',
-      subtitle: "Ilovaga kirish uchun 2 bosqichli tasdiqlash majburiy: har safar o'zgarib turadigan bir martalik kod. Davom etish uchun parolingizni qayta kiriting.",
+      subtitle: "Ilovaga kirish uchun 2 bosqichli tasdiqlash majburiy: har 30 soniyada o'zgaradigan bir martalik kod. Davom etish uchun joriy parolingizni kiriting; keyin yangi kuchli parol o'rnatasiz.",
       body: `
       <form data-form="mfa-setup-pw" novalidate>
         <label class="field"><span>Parol</span>
@@ -20,6 +24,24 @@ registerStep('mfa-setup', {
       <button type="button" class="link-btn" data-act="mfa-logout">Chiqish</button>`,
     }),
   mount: (root) => root.querySelector('input[name=password]')?.focus(),
+});
+
+registerStep('mfa-setup-newpw', {
+  view: () =>
+    authLayout({
+      title: 'Yangi kuchli parol',
+      subtitle: "Himoyani yangilash uchun yangi, kuchli parol o'rnating. Eski parol ishlamaydi.",
+      body: `
+      <form data-form="mfa-setup-newpw" novalidate>
+        ${passwordFieldsHtml({ label: 'Yangi parol' })}
+        <p class="form-error" role="alert" hidden></p>
+        <button class="btn block" type="submit" disabled>Parolni saqlash</button>
+      </form>
+      <button type="button" class="link-btn" data-act="mfa-logout">Chiqish</button>`,
+    }),
+  mount: (root) => {
+    verifyNew = mountPasswordFields(root.querySelector('form'), () => flowData.email || '');
+  },
 });
 
 registerStep('mfa-setup-qr', {
@@ -53,6 +75,18 @@ registerForms({
     setBusy(form, true, 'Tekshirilmoqda…');
     const session = await getSession();
     const { error } = await signIn(session?.user?.email || '', password);
+    if (error) {
+      setBusy(form, false);
+      return showFormError(form, humanizeAuthError(error));
+    }
+    replaceStep('mfa-setup-newpw', { email: session?.user?.email || '' });
+  },
+  'mfa-setup-newpw': async (form, fd) => {
+    const v = verifyNew();
+    if (!v.ok) return showFormError(form, v.message);
+    showFormError(form, '');
+    setBusy(form, true, 'Saqlanmoqda…');
+    const { error } = await setNewPassword(String(fd.get('password')));
     if (error) {
       setBusy(form, false);
       return showFormError(form, humanizeAuthError(error));

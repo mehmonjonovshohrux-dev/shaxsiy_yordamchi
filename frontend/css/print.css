@@ -1,0 +1,25 @@
+/* Hisobotni PDF/chop etish: faqat #print-root ko'rinadi */
+#print-root { display: none; }
+@media print {
+  @page { size: A4; margin: 14mm; }
+  body > *:not(#print-root) { display: none !important; }
+  html, body { background: #fff !important; }
+  #print-root { display: block; color: #0f172a; font: 11pt/1.4 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  #print-root h1 { font-size: 22pt; color: #4f46e5; margin: 0 0 4pt; }
+  #print-root h2 { font-size: 13pt; margin: 16pt 0 6pt; break-after: avoid; }
+  .pr-sub { color: #475569; margin: 0 0 12pt; }
+  .pr-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 6pt; }
+  .pr-kpi { background: #eef2ff; padding: 8pt 10pt; border-radius: 6pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .pr-kpi span { display: block; font-size: 9pt; color: #64748b; }
+  .pr-kpi b { font-size: 15pt; }
+  #print-root table { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
+  #print-root th { background: #4f46e5; color: #fff; padding: 5pt 7pt; text-align: left; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #print-root td { padding: 5pt 7pt; border-bottom: 1px solid #e2e8f0; }
+  #print-root tr { break-inside: avoid; }
+  #print-root tbody tr:nth-child(even) td { background: #f8fafc; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #print-root tr.total td { font-weight: 700; background: #eef2ff !important; }
+  #print-root .r { text-align: right; white-space: nowrap; }
+  #print-root .pos { color: #15803d; }
+  #print-root .neg { color: #b91c1c; }
+  .pr-foot { margin-top: 14pt; color: #94a3b8; font-size: 8.5pt; }
+}

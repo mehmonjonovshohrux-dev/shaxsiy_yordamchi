@@ -8,6 +8,8 @@
 -- Qaytarish uchun:  drop policy "require_mfa" on public.accounts;
 --                   drop policy "require_mfa_secrets" on public.account_secrets;
 --                   drop policy "require_mfa_files" on storage.objects;
+--                   drop policy "require_mfa_payments" on public.payments;
+--                   drop policy "require_mfa_devices" on public.devices;
 -- =====================================================================
 
 drop policy if exists "require_mfa" on public.accounts;
@@ -20,6 +22,22 @@ do $$ begin
   if to_regclass('public.account_secrets') is not null then
     execute 'drop policy if exists "require_mfa_secrets" on public.account_secrets';
     execute 'create policy "require_mfa_secrets" on public.account_secrets as restrictive to authenticated using ((select auth.jwt() ->> ''aal'') = ''aal2'')';
+  end if;
+end $$;
+
+-- 006 ishga tushirilgan bo'lsa (muddatli to'lovlar)
+do $$ begin
+  if to_regclass('public.payments') is not null then
+    execute 'drop policy if exists "require_mfa_payments" on public.payments';
+    execute 'create policy "require_mfa_payments" on public.payments as restrictive to authenticated using ((select auth.jwt() ->> ''aal'') = ''aal2'')';
+  end if;
+end $$;
+
+-- 009 ishga tushirilgan bo'lsa (ulangan qurilmalar)
+do $$ begin
+  if to_regclass('public.devices') is not null then
+    execute 'drop policy if exists "require_mfa_devices" on public.devices';
+    execute 'create policy "require_mfa_devices" on public.devices as restrictive to authenticated using ((select auth.jwt() ->> ''aal'') = ''aal2'')';
   end if;
 end $$;
 
