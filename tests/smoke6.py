@@ -16,13 +16,13 @@ def ok(c,m):
 mock_min={'v':'9.9.0'}
 with sync_playwright() as p:
     b=p.chromium.launch(executable_path='/usr/bin/google-chrome',args=['--no-sandbox'])
-    ctx=b.new_context(viewport={'width':360,'height':700},is_mobile=True)
+    ctx=b.new_context(viewport={'width':360,'height':700},is_mobile=True, service_workers='block')
     ctx.add_init_script("localStorage.setItem('__user','1'); localStorage.setItem('__mfa','1'); localStorage.setItem('__seed','[]')")
     ctx.route('**/vendor/supabase.min.js',lambda r:r.fulfill(body=mock,content_type='application/javascript'))
     ctx.route('**/version.json*',lambda r:r.fulfill(body='{"version":"9.9.0","min":"%s"}'%mock_min['v'],content_type='application/json'))
     pg=ctx.new_page(); pg.on('pageerror',lambda e:errs.append(str(e)))
     pg.goto('http://127.0.0.1:8767/'); pg.wait_for_selector('#update-wall'); pg.wait_for_timeout(500)
-    ok('Yangilash majburiy' in pg.inner_text('#update-wall'),'eski versiya: devor chiqdi')
+    ok('Yangilanish bor' in pg.inner_text('#update-wall'),'eski versiya: devor chiqdi')
     ok(pg.evaluate("document.querySelector('.shell')===null && document.getElementById('app').children.length===0"),'ilova/ma\'lumot ko\'rinmaydi')
     pg.screenshot(path=f'{shots}/70-update-wall.png')
     # oflayn: oxirgi ma'lum talab qo'llanadi

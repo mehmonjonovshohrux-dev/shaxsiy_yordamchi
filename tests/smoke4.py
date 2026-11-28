@@ -15,7 +15,7 @@ def ok(c,m):
 with sync_playwright() as p:
     b=p.chromium.launch(executable_path='/usr/bin/google-chrome',args=['--no-sandbox'])
     seed=json.dumps([{'id':'x1','title':'Pro akk','game':'PUBG','kind':'own','buy_price':100000,'est_price':900000,'status':'active','images':[],'created_at':'2026-11-10T10:00:00Z','partner_paid':False,'inst_weekly':0}])
-    ctx=b.new_context(viewport={'width':390,'height':800},device_scale_factor=2,is_mobile=True,has_touch=True)
+    ctx=b.new_context(viewport={'width':390,'height':800},device_scale_factor=2,is_mobile=True,has_touch=True, service_workers='block')
     ctx.add_init_script("localStorage.setItem('__user','1'); localStorage.setItem('__mfa','1'); localStorage.setItem('__seed', %s)" % json.dumps(seed))
     ctx.route('**/vendor/supabase.min.js',lambda r:r.fulfill(body=mock,content_type='application/javascript'))
     pg=ctx.new_page(); pg.on('console',lambda m:errs.append(m.text) if m.type=='error' else None); pg.on('pageerror',lambda e:errs.append('PAGEERR '+str(e)))
@@ -70,7 +70,7 @@ with sync_playwright() as p:
     pg.click('[data-act=open-inst-all]'); pg.wait_for_selector('.acc-card'); ok('Pro akk' in pg.inner_text('.acc-list'),'barcha muddatlilar ro\'yxati'); pg.go_back(); pg.wait_for_timeout(400)
     print('• 006 ishga tushirilmagan bo\'lsa')
     ctx.close()
-    c2=b.new_context(viewport={'width':390,'height':800},is_mobile=True,has_touch=True)
+    c2=b.new_context(viewport={'width':390,'height':800},is_mobile=True,has_touch=True, service_workers='block')
     c2.add_init_script("localStorage.setItem('__user','1'); localStorage.setItem('__mfa','1'); localStorage.setItem('__seed', %s); window.__noPay=1" % json.dumps(seed))
     c2.add_init_script("setTimeout(()=>{},0)")
     c2.route('**/vendor/supabase.min.js',lambda r:r.fulfill(body=mock.replace("payments: [],","payments: [], noPayments: true,",1),content_type='application/javascript'))

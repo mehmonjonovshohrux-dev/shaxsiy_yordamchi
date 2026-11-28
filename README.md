@@ -54,3 +54,8 @@ Testlar: `node --test tests/logic.test.mjs`
 ## Majburiy yangilanish (2.3.1+)
 Ilova ochilganda va har 30 daqiqada `frontend/version.json` tekshiriladi. Ilova versiyasi `min` dan past bo'lsa (yoki `min` yo'q bo'lsa, `version` dan past bo'lsa), «Yangilash majburiy» oynasi chiqadi va ilova ishlamaydi.
 Har yangi relizda `version` ni o'zgartirish kifoya. Cheklov: 2.3.1 dan oldingi versiyalarda bu tekshiruv yo'q.
+
+## Yangilanish foydalanuvchi bosganda o'rnatiladi (2.8.0+)
+Service worker yangi versiyani o'zi faollashtirmaydi: u «kutish»da turadi. Ilova `version.json` dan yangi versiyani bilib, «Yangilanish bor» oynasi yoki bildirishnoma ko'rsatadi; foydalanuvchi «Yangilash» ni bosganda o'rnatiladi.
+Har relizdan oldin: `node backend/tools/make-precache.mjs` (frontend/precache.json ro'yxatini yangilaydi), `sw.js` dagi `VERSION` ni oshiring.
+Joylashuv ruxsati avtomatik faqat bir marta so'raladi; keyin brauzer eslab qoladi.

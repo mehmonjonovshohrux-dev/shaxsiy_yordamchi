@@ -3,7 +3,7 @@ import './core/actions.js';
 import './ui/inputs.js';
 import { $ } from './core/dom.js';
 import { getState, setState } from './core/store.js';
-import { initRouter, overlayCount } from './core/router.js';
+import { initRouter } from './core/router.js';
 import { toast } from './ui/toast.js';
 import { onInstallChange } from './services/install.service.js';
 import { getSession, onAuthChange, mfaNeeded, mfaFactor, mfaEnforced } from './services/auth.service.js';
@@ -85,11 +85,6 @@ async function enterApp() {
 
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
-  const had = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    // yangi versiya faollashdi: ochiq oyna bo'lmasa, o'zimiz yangilaymiz
-    if (had && overlayCount() === 0 && !getState().locked) location.reload();
-  });
   navigator.serviceWorker.register('sw.js').catch((e) => console.warn('SW:', e));
 }
 

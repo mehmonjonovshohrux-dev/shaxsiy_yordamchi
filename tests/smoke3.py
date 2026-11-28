@@ -16,7 +16,7 @@ with sync_playwright() as p:
     b=p.chromium.launch(executable_path='/usr/bin/google-chrome',args=['--no-sandbox'])
     seed=json.dumps([{'id':'x1','title':'Pro akk','game':'PUBG','kind':'own','buy_price':100000,'est_price':250000,'status':'active','images':[],'created_at':'2026-10-20T10:00:00Z','partner_paid':False}])
     def newctx(user=True, mfa=False):
-        c=b.new_context(viewport={'width':390,'height':800},device_scale_factor=2,is_mobile=True,has_touch=True)
+        c=b.new_context(viewport={'width':390,'height':800},device_scale_factor=2,is_mobile=True,has_touch=True, service_workers='block')
         c.grant_permissions(['notifications'],origin='http://127.0.0.1:8766')
         init="localStorage.setItem('__seed', %s);" % json.dumps(seed)
         if user: init+="localStorage.setItem('__user','1');"

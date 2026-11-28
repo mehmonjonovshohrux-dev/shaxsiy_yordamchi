@@ -1,12 +1,20 @@
-// Service worker: ilova qobig'ini keshlaydi (oflayn ochilishi uchun). Supabase so'rovlari va rasmlar KESHLANMAYDI.
-const VERSION = 'accsavdo-v9';
+// Service worker: ilova qobig'i keshlanadi (oflayn ochilishi uchun). Supabase so'rovlari va rasmlar KESHLANMAYDI.
+// Yangi versiya o'zi o'rnatilmaydi: u "kutish"da turadi va foydalanuvchi «Yangilash» ni bosganda faollashadi.
+const VERSION = 'accsavdo-v10';
 
 self.addEventListener('install', (e) => {
+  // skipWaiting yo'q: eski versiya foydalanuvchi tasdiqlamaguncha ishlashda davom etadi
   e.waitUntil(
-    caches
-      .open(VERSION)
-      .then((c) => c.addAll(['./', 'index.html']))
-      .then(() => self.skipWaiting()),
+    (async () => {
+      const cache = await caches.open(VERSION);
+      let list = ['./', 'index.html'];
+      try {
+        const r = await fetch('precache.json', { cache: 'no-store' });
+        if (r.ok) list = [...new Set([...list, ...(await r.json())])];
+      } catch {}
+      // bitta fayl topilmasa ham o'rnatish to'xtamasin
+      await Promise.allSettled(list.map((u) => cache.add(new Request(u, { cache: 'reload' }))));
+    })(),
   );
 });
 
@@ -19,20 +27,27 @@ self.addEventListener('activate', (e) => {
   );
 });
 
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   const url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== self.location.origin) return; // tashqi (Supabase) -> to'g'ridan-to'g'ri tarmoq
+  if (/\/(version|precache)\.json$/.test(url.pathname)) return; // har doim yangi
   e.respondWith(
-    fetch(req)
-      .then((res) => {
-        if (res.ok) {
-          const copy = res.clone();
-          caches.open(VERSION).then((c) => c.put(req, copy));
-        }
+    caches.open(VERSION).then(async (cache) => {
+      const hit = await cache.match(req, { ignoreSearch: req.mode === 'navigate' });
+      if (hit) return hit;
+      try {
+        const res = await fetch(req);
+        if (res.ok) cache.put(req, res.clone());
         return res;
-      })
-      .catch(() => caches.match(req).then((m) => m || caches.match('index.html'))),
+      } catch {
+        return (await cache.match('index.html')) || Response.error();
+      }
+    }),
   );
 });
 

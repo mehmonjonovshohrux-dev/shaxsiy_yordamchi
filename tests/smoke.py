@@ -10,7 +10,7 @@ errs = []; shots = '/home/claude/proj/tests/shots'; os.makedirs(shots, exist_ok=
 def step(n): print('•', n)
 with sync_playwright() as p:
     b = p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--no-sandbox'])
-    ctx = b.new_context(viewport={'width': 390, 'height': 800}, device_scale_factor=2, is_mobile=True, has_touch=True)
+    ctx = b.new_context(viewport={'width': 390, 'height': 800}, device_scale_factor=2, is_mobile=True, has_touch=True, service_workers='block')
     ctx.route('**/vendor/supabase.min.js', lambda r: r.fulfill(body=mock, content_type='application/javascript'))
     pg = ctx.new_page()
     pg.on('console', lambda m: errs.append(m.text) if m.type == 'error' else None)

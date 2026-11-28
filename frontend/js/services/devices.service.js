@@ -7,6 +7,22 @@ import * as auth from './auth.service.js';
 
 const ID_KEY = 'accsavdo.deviceId';
 const THROTTLE_MS = 60 * 1000;
+const ASKED = 'accsavdo.geoAsked'; // ruxsat avtomatik faqat bir marta so'raladi
+const WAS_OK = 'accsavdo.geoOk';
+const ls = {
+  get: (k) => {
+    try {
+      return localStorage.getItem(k);
+    } catch {
+      return null;
+    }
+  },
+  set: (k) => {
+    try {
+      localStorage.setItem(k, '1');
+    } catch {}
+  },
+};
 let last = 0;
 
 export function deviceId() {
@@ -38,6 +54,43 @@ export function getPosition() {
   });
 }
 
+async function permState() {
+  try {
+    return (await navigator.permissions.query({ name: 'geolocation' })).state; // granted | prompt | denied
+  } catch {
+    return null; // Permissions API yo'q (eski brauzer)
+  }
+}
+
+// Ruxsat berilgan bo'lsa, jimgina oladi. Ruxsat so'ralmagan bo'lsa, faqat bir marta so'raydi.
+// Keyingi kirishlarda qayta so'ramaydi (foydalanuvchi o'zi «Qayta urinish» ni bossa, interactive).
+async function locate({ interactive = false } = {}) {
+  const st = await permState();
+  const asked = ls.get(ASKED) === '1';
+  let allowed = st === 'granted' || (st === null && ls.get(WAS_OK) === '1');
+  if (st === 'denied') {
+    setState({ geoStatus: 'denied' });
+    return null;
+  }
+  if (!allowed) {
+    if (!interactive && asked) {
+      setState({ geoStatus: 'prompt' });
+      return null;
+    }
+    ls.set(ASKED);
+    allowed = true;
+  }
+  try {
+    const p = await getPosition();
+    ls.set(WAS_OK);
+    setState({ geoStatus: 'ok' });
+    return p;
+  } catch (e) {
+    setState({ geoStatus: e?.code === 1 ? 'denied' : e?.message === 'unsupported' ? 'unsupported' : 'error' });
+    return null;
+  }
+}
+
 export async function loadDevices() {
   const { data, error } = await sb.from('devices').select('*').order('last_seen', { ascending: false });
   if (error) {
@@ -65,13 +118,8 @@ export async function ping({ force = false } = {}) {
     }
     const row = { user_id: user.id, device_id: id, name: deviceName(navigator.userAgent), last_seen: new Date().toISOString() };
     // Joylashuv xavfsizlik tizimining bir qismi: har kirishda olinadi (ruxsatni brauzer bir marta so'raydi)
-    try {
-      const p = await getPosition();
-      Object.assign(row, { lat: p.lat, lng: p.lng, accuracy: p.accuracy, loc_at: new Date().toISOString() });
-      setState({ geoStatus: 'ok' });
-    } catch (e) {
-      setState({ geoStatus: e?.code === 1 ? 'denied' : e?.message === 'unsupported' ? 'unsupported' : 'error' });
-    }
+    const pos = await locate({ interactive: force === 'ask' });
+    if (pos) Object.assign(row, { lat: pos.lat, lng: pos.lng, accuracy: pos.accuracy, loc_at: new Date().toISOString() });
     const { error } = await sb.from('devices').upsert(row, { onConflict: 'user_id,device_id' });
     if (error && !missing(error)) console.warn('devices:', error);
     if (!error) await loadDevices().catch(() => {});
@@ -101,6 +149,6 @@ export async function forgetDevice(id) {
 
 // Ruxsat berilmagan bo'lsa, qayta so'rash (brauzer rad etgan bo'lsa, sozlamalardan yoqish kerak)
 export async function retryLocation() {
-  await ping({ force: true });
+  await ping({ force: 'ask' });
   return getState().geoStatus;
 }

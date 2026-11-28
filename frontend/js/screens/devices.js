@@ -34,6 +34,7 @@ const GEO = {
   denied: ['bad', 'Joylashuvga ruxsat berilmagan', "Telefon yoki brauzer sozlamalarida shu sayt uchun «Joylashuv» ni «Ruxsat berish» qiling, so'ng «Qayta urinish» ni bosing."],
   unsupported: ['warn', "Bu qurilma joylashuvni qo'llamaydi", ''],
   error: ['warn', 'Joylashuvni aniqlab bo\'lmadi', "GPS yoqilganini tekshiring va qayta urinib ko'ring."],
+  prompt: ['warn', 'Joylashuvga ruxsat berilmagan', "Bir marta «Ruxsat berish» ni bosing: keyin ilova qayta so'ramaydi."],
   unknown: ['warn', 'Joylashuv tekshirilmoqda…', ''],
 };
 const geoRow = (status) => {

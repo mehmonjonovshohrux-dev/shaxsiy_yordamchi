@@ -26,8 +26,8 @@ export function showWall(min, offline = false) {
   w.setAttribute('aria-modal', 'true');
   w.innerHTML = `<div class="uw-card">
     <div class="uw-ic" aria-hidden="true">⬆️</div>
-    <h1>Yangilash majburiy</h1>
-    <p>Ilovaning eski versiyasi (<b>${CONFIG.VERSION}</b>) endi ishlamaydi. Davom etish uchun <b>${min}</b> yoki undan yangisiga o'ting.</p>
+    <h1>Yangilanish bor</h1>
+    <p>Ilovaning yangi versiyasi (<b>${min}</b>) chiqdi. Davom etish uchun quyidagi tugmani bosing. Hozirgi versiya: ${CONFIG.VERSION}.</p>
     ${offline ? '<p class="uw-note">Internetga ulaning, keyin «Yangilash» ni bosing.</p>' : ''}
     <button type="button" class="btn block" id="uw-btn">Yangilash</button>
   </div>`;

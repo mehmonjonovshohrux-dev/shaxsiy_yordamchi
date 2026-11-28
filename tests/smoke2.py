@@ -14,7 +14,7 @@ def ok(c,m):
     if not c: fails.append(m)
 with sync_playwright() as p:
     b=p.chromium.launch(executable_path='/usr/bin/google-chrome',args=['--no-sandbox'])
-    ctx=b.new_context(viewport={'width':390,'height':800},device_scale_factor=2,is_mobile=True,has_touch=True)
+    ctx=b.new_context(viewport={'width':390,'height':800},device_scale_factor=2,is_mobile=True,has_touch=True, service_workers='block')
     seed=json.dumps([{'id':'x1','title':'Pro akk','game':'PUBG','kind':'own','buy_price':100000,'est_price':250000,'status':'active','images':[],'created_at':'2026-10-20T10:00:00Z','partner_paid':False},{'id':'x2','title':'Sherik akk','game':'FF','kind':'partner','partner_name':'Ali','buy_price':200000,'est_price':500000,'status':'active','images':[],'created_at':'2026-11-20T10:00:00Z','partner_paid':False}])
     ctx.add_init_script("localStorage.setItem('__user','1'); localStorage.setItem('__mfa','1'); localStorage.setItem('__seed', %s)" % json.dumps(seed))
     ctx.route('**/vendor/supabase.min.js',lambda r:r.fulfill(body=mock,content_type='application/javascript'))
@@ -82,7 +82,7 @@ with sync_playwright() as p:
     pg.click('.set-row[data-act=open-guide]'); pg.wait_for_selector('.faq'); pg.screenshot(path=f'{shots}/30-guide.png'); pg.go_back(); pg.wait_for_timeout(300)
     pg.click('.set-row[data-act=open-about]'); pg.wait_for_selector('.about-head'); pg.screenshot(path=f'{shots}/31-about.png'); pg.go_back(); pg.wait_for_timeout(300)
     print('• yangilanish bildirishi')
-    ctx.route('**/version.json*',lambda r:r.fulfill(body='{"version":"9.9.9"}',content_type='application/json'))
+    ctx.route('**/version.json*',lambda r:r.fulfill(body='{"version":"9.9.9","min":"1.0.0"}',content_type='application/json'))
     pg.evaluate("document.dispatchEvent(new Event('visibilitychange'))"); pg.wait_for_timeout(800)
     pg.click('.topbar [data-act=open-notes]'); pg.wait_for_selector('.notes-list'); pg.wait_for_timeout(300)
     ok(pg.query_selector('[data-act=apply-update]') is not None,'«Yangilash» tugmasi chiqdi'); pg.screenshot(path=f'{shots}/32-update.png')

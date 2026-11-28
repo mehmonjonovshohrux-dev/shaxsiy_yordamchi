@@ -25,8 +25,9 @@ const GUIDE = [
 ];
 
 const CHANGELOG = [
-  ['2.7.0', ["Majburiy yangilanish: eski versiya yangilanmaguncha ishlamaydi"]],
-  ['2.6.0', ["Ulangan qurilmalar: ro'yxat, oxirgi faollik, har kirishda avtomatik GPS joylashuv, chiqarish", "Parolni almashtirish endi PIN va Authenticator kodini talab qiladi", "Hisobot: Word (.docx) va PDF yuklab olish", "Profil oynasi yon tomonga surilmaydi"]],
+  ['2.8.0', ["Yangilanish endi faqat o'zingiz tasdiqlaganingizda o'rnatiladi", "Qurilma tekshiruvi qulaylashtirildi: ruxsat bir marta so'raladi", "Kichik ishlash yaxshilanishlari"]],
+  ['2.7.0', ["Ilova barqarorligi va xavfsizligi yaxshilandi"]],
+  ['2.6.0', ["Ulangan qurilmalar bo'limi: hisobingizga kirgan qurilmalarni ko'rish va chiqarish", "Parolni almashtirish endi PIN va Authenticator kodini talab qiladi", "Hisobot: Word (.docx) va PDF yuklab olish", "Profil oynasi yon tomonga surilmaydi"]],
   ['2.5.0', ["Muddatli to'lov: haftasiga summa (qo'shilib boradi) yoki teng qismlar", "Kalendarda boshlanish va tugash sanasini bosing: oraliq boshqa rangda", "Hozirgacha to'planishi kerak bo'lgan summa ko'rinadi"]],
   ['2.4.0', ["Muddatli to'lov: qismlar, kalendar, to'lovlar tarixi, tugash sanasini o'zgartirish", "Rasm: Galereya, Kamera va Fayl tugmalari", "2FA qayta sozlashda yangi kuchli parol majburiy", "2FA'ni faqat GitHub push orqali nollash mumkin", "Kirish ma'lumotlari xatosi sababi aniq ko'rsatiladi"]],
   ['2.3.0', ["2 bosqichli tasdiqlash majburiy: kirishda parol qayta so'raladi va bir martalik kod talab etiladi", "Akkaunt formasidan «O'yin» va «Izoh» olib tashlandi", "Sotuvni saqlash tuzatildi", "Rasm har qanday formatda qabul qilinadi"]],

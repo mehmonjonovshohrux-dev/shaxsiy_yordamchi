@@ -8,7 +8,7 @@ export const CONFIG = Object.freeze({
 
 
   // Rasmlar
-  VERSION: '2.7.0',
+  VERSION: '2.8.0',
   BUILD_DATE: '2026-11-21',
   ADMIN_TG: 'Ulugbek_5678',
   ADMIN_PHONE: '+998952255678',

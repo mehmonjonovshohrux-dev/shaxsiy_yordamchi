@@ -15,7 +15,7 @@ def ok(c,m):
 with sync_playwright() as p:
     b=p.chromium.launch(executable_path='/usr/bin/google-chrome',args=['--no-sandbox'])
     seed=json.dumps([{'id':'x1','title':'Pro akk','game':'PUBG','kind':'own','buy_price':100000,'est_price':900000,'sold_price':900000,'sold_at':'2026-11-05','status':'sold','images':[],'created_at':'2026-11-01T10:00:00Z','partner_paid':False,'inst_weekly':0}])
-    ctx=b.new_context(viewport={'width':320,'height':740},device_scale_factor=2,is_mobile=True,has_touch=True,permissions=['geolocation'],geolocation={'latitude':41.3111,'longitude':69.2797},accept_downloads=True)
+    ctx=b.new_context(viewport={'width':320,'height':740},device_scale_factor=2,is_mobile=True,has_touch=True,permissions=['geolocation'],geolocation={'latitude':41.3111,'longitude':69.2797},accept_downloads=True, service_workers='block')
     ctx.add_init_script("localStorage.setItem('__user','1'); localStorage.setItem('__mfa','1'); localStorage.setItem('__seed', %s)" % json.dumps(seed))
     ctx.route('**/vendor/supabase.min.js',lambda r:r.fulfill(body=mock,content_type='application/javascript'))
     pg=ctx.new_page(); pg.on('console',lambda m:errs.append(m.text) if m.type=='error' else None); pg.on('pageerror',lambda e:errs.append('PAGEERR '+str(e)))
@@ -69,7 +69,7 @@ with sync_playwright() as p:
     pg.fill('input[name=code]','123456'); pg.fill('input[name=password]','Zamon#Kitob8Quyosh'); pg.fill('input[name=confirm]','Zamon#Kitob8Quyosh'); pg.evaluate("document.querySelector('form[data-form=change-pw] button[type=submit]').disabled=false"); pg.click('form[data-form=change-pw] button[type=submit]'); pg.wait_for_timeout(800)
     ok(pg.evaluate("window.__mock.pw")=='Zamon#Kitob8Quyosh','to\'g\'ri kod bilan parol yangilandi'); ok(pg.evaluate("window.__mock.others")>=1,'boshqa qurilmalar chiqarildi')
     print('• ruxsat rad etilgan')
-    ctx2=b.new_context(viewport={'width':360,'height':740},is_mobile=True,has_touch=True)
+    ctx2=b.new_context(viewport={'width':360,'height':740},is_mobile=True,has_touch=True, service_workers='block')
     ctx2.add_init_script("localStorage.setItem('__user','1'); localStorage.setItem('__mfa','1'); localStorage.setItem('__seed','[]'); localStorage.setItem('accsavdo.profilePrompted','1')")
     ctx2.route('**/vendor/supabase.min.js',lambda r:r.fulfill(body=mock,content_type='application/javascript'))
     ctx2.add_init_script("navigator.geolocation.getCurrentPosition=(ok,err)=>err({code:1,message:'denied'})")
